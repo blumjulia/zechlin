@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zechlin"
+version = "0.1.0"
+description = ""
+dependencies = [
+    "flask<=2.2.5",
+    "connexion[swagger-ui]<=2.14.1",
+    "connexion[flask]<=2.14.1",
+    "mariadb<=1.1.8",
+    "werkzeug<=2.2.3"
+]
