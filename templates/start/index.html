@@ -1,0 +1,28 @@
+{% extends 'main.html' %}
+
+{% block body_content %}
+    <div class="px-4 py-4 text-center">
+        <h1 class="fw-bold">Digitales Werkverzeichnis</h1>
+        <h2>zur Komponistin Ruth Zechlin</h2>
+    </div>
+
+    <div class="card text-center" id="such_auswahl">
+        <div class="card-body bg-body-tertiary">
+            <div class="" id="schnellsuche" role="tabpanel" aria-labelledby="schnellsuche-tab" tabindex="0">
+                <div class="px-md-5 px-sm-1">
+                    <form method="GET" class="py-3" action="{{ url_for('suche.ergebnis_schnellsuche') }}">
+                        <div>
+                            <label for="suchbegriff" class="form-label">Suchbegriff:</label>
+                            <input type="search" id="suchbegriff" name="suchbegriff" placeholder="Werk, Verlag, Person, Textgrundlage, Ort, Nutzung, Gattung, Untergattung, Detailgattung"
+                                   class="form-control py-2" required>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary mb-2 form-control">Suche starten</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body_content %}

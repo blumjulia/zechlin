@@ -1,0 +1,355 @@
+{% extends 'main.html' %}
+
+{% block body_content %}
+    <div class="px-4 py-4 text-center">
+        <h1 class="fw-bold">Digitales Werkverzeichnis</h1>
+        <h4 class="fw-semibold">Werke der Komponistin Ruth Zechlin</h4>
+    </div>
+
+
+    <div class="card text-center mb-4" id="such_auswahl">
+        <div class="card-header bg-body-secondary">
+            <h5 class="card-title text-center fw-semibold">Erweiterte Werksuche</h5>
+        </div>
+        <div class="card-body px-md-5 py-md-4 p-sm-1 bg-body-tertiary">
+            <form id="werkForm" method="GET" action="{{ url_for('suche.ergebnis_werksuche') }}" autocomplete="off">
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="titel" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Titel:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="titel_operator">
+                                <option value="1">entspricht</option>
+                                <option value="2">enthält</option>
+                                <option value="3">beginnt</option>
+                                <option value="4">endet</option>
+                            </select>
+                            <select class="form-select text-center" name="titel_nicht">
+                                <option value="0"></option>
+                                <option value="10">nicht</option>
+                            </select>
+                            <input type="text" class="form-control w-auto" id="titel" name="titel" list="werke">
+                            <datalist id="werke">
+                                {% for werk in werke %}
+                                    <option value="{{ werk.werk_titel }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="untertitel" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Untertitel:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="untertitel_operator">
+                                <option value="1">entspricht</option>
+                                <option value="2">enthält</option>
+                                <option value="3">beginnt</option>
+                                <option value="4">endet</option>
+                            </select>
+                            <select class="form-select text-center" name="untertitel_nicht">
+                                <option value="0"></option>
+                                <option value="10">nicht</option>
+                            </select>
+                            <input type="text" class="form-control w-auto" id="untertitel" name="untertitel">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="werkinhalt" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Werkinhalt:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="werkinhalt_operator">
+                                <option value="1">entspricht</option>
+                                <option value="2">enthält</option>
+                                <option value="3">beginnt</option>
+                                <option value="4">endet</option>
+                            </select>
+                            <select class="form-select text-center" name="werkinhalt_nicht">
+                                <option value="0"></option>
+                                <option value="10">nicht</option>
+                            </select>
+                            <input type="text" class="form-control w-auto" id="werkinhalt" name="werkinhalt">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Entstehungsjahr:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <input type="number" class="form-control text-center" name="jahr_entstehung_beginn" minlength="4" maxlength="4">
+                            <span class="input-group-text"> - </span>
+                            <input type="number" class="form-control text-center" name="jahr_entstehung_ende" minlength="4" maxlength="4">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="textgrundlage" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Textgrundlage:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="textgrundlage_operator">
+                                <option value="1">entspricht</option>
+                                <option value="2">enthält</option>
+                                <option value="3">beginnt</option>
+                                <option value="4">endet</option>
+                            </select>
+                            <select class="form-select text-center" name="textgrundlage_nicht">
+                                <option value="0"></option>
+                                <option value="10">nicht</option>
+                            </select>
+                            <input type="text" class="form-control w-auto" id="textgrundlage" name="textgrundlage">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="spieldauer" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Spieldauer:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="spieldauer_operator">
+                                <option value="5">genau</option>
+                                <option value="6">kürzer als</option>
+                                <option value="7">länger als</option>
+                            </select>
+                            <input type="number" class="form-control w-auto" id="spieldauer" name="spieldauer">
+                            <select class="form-select text-center" name="spieldauer_einheit">
+                                <option value="1">Sek.</option>
+                                <option value="60">Min.</option>
+                                <option value="3600">Std.</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="widmung" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Widmung:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="widmung_operator">
+                                <option value="1">entspricht</option>
+                                <option value="2">enthält</option>
+                                <option value="3">beginnt</option>
+                                <option value="4">endet</option>
+                            </select>
+                            <select class="form-select text-center" name="widmung_nicht">
+                                <option value="0"></option>
+                                <option value="10">nicht</option>
+                            </select>
+                            <input type="text" class="form-control w-auto" id="widmung" name="widmung">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="gattung" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Gattung:</label>
+                    <div class=" col-12 col-sm-9">
+                        <select class="form-select" name="gattung" id="gattung" aria-label="gattung">
+                            <option value="0" selected>Alle</option>
+
+                            {% for gattung in gattungen %}
+                                <option value="{{ gattung.gattung_id }}">{{ gattung.gattung_name }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="untergattung" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Untergattung:</label>
+                    <div class=" col-12 col-sm-9">
+                        <select class="form-select" name="untergattung" id="untergattung" aria-label="untergattung">
+                            <option value="0" data-id-gattung="0" selected>Alle</option>
+
+                            {% for untergattung in untergattungen %}
+                                <option value="{{ untergattung.untergattung_id }}" data-id-gattung="{{ untergattung.fk_gattung_id }}">{{ untergattung.untergattung_name }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="detailgattung" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Detailgattung:</label>
+                    <div class=" col-12 col-sm-9">
+                        <select class="form-select" name="detailgattung" id="detailgattung" aria-label="detailgattung">
+                            <option value="0" data-id-gattung="0" data-id-untergattung="0" selected>Alle</option>
+
+                            {% for detailgattung in detailgattungen %}
+                                <option value="{{ detailgattung.detailgattung_id }}" data-id-gattung="{{ detailgattung.fk_gattung_id }}" data-id-untergattung="{{ detailgattung.fk_untergattung_id }}">{{ detailgattung.detailgattung_name }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="rism_kategorie" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Besetzungs-Kategorie:</label>
+                    <div class=" col-12 col-sm-9">
+                        <select class="form-select" name="rism_kategorie" id="rism_kategorie" aria-label="kategorie">
+                            <option value="0" selected>Alle</option>
+                            {% for rism_kategorie in rism_kategorien %}
+                                <option value="{{ rism_kategorie.rism_kategorie_id }}">{{ rism_kategorie.rism_kategorie_name }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="rism" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Besetzung:</label>
+                    <div class="col-12 col-sm-9">
+                        <select class="form-select" aria-label="Besetzung:" name="rism" id="rism">
+                            <option value="0">Alle</option>
+                            {% for rism in besetzungen_rism %}
+                                <option value="{{ rism.rism_id }}" data-id-rism-kategorie="{{ rism.fk_rism_kategorie_id }}">{{ rism.rism_code }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="verlag_aktuell" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Aktueller Verlag:</label>
+                    <div class=" col-12 col-sm-9">
+                        <select class="form-select" name="verlag_aktuell" id="verlag_aktuell" aria-label="verlag_aktuell">
+                            <option value="0" selected>Alle</option>
+
+                            {% for verlag in verlage %}
+                                <option value="{{ verlag.verlag_id }}">{{ verlag.verlag_name }}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3 w-100">Erweiterte Suche starten</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title text-center fw-semibold">Werke nach Gattungen</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group">
+                        {% for gattung_id, gattung in werk_gattungen.items() %}
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between ps-2" href="{{ url_for('objekt.gattung', gattung_id=gattung_id) }}">
+                                <p class="m-0">{{ gattung.gattung_name }}</p>
+                                <span>{{ gattung.anzahl_werke }}</span>
+                            </a>
+                            {% for untergattung_id, untergattung in gattung.untergattungen.items() %}
+                                <a class="list-group-item list-group-item-action d-flex justify-content-between ps-5" href="{{ url_for('objekt.untergattung', untergattung_id=untergattung_id) }}">
+                                    <p class="m-0">{{ untergattung.untergattung_name }}</p>
+                                    <span>{{ untergattung.anzahl_werke }}</span>
+                                </a>
+                                {% for detailgattung_id, detailgattung in untergattung.detailgattungen.items() %}
+                                    <a class="list-group-item list-group-item-action d-flex justify-content-between ps-5" href="{{ url_for('objekt.detailgattung', detailgattung_id=detailgattung_id) }}">
+                                        <p class="ps-5 m-0">{{ detailgattung.detailgattung_name }}</p>
+                                        <span>{{ detailgattung.anzahl_werke }}</span>
+                                    </a>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title text-center fw-semibold">Werke nach Besetzung</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group">
+                        {% for rism_kategorie_id, rism_kategorie in werk_besetzungen.items() %}
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between ps-2" href="{{ url_for('suche.ergebnis_werksuche') }}?rism_kategorie={{ rism_kategorie_id }}">
+                                <p class="m-0">{{ rism_kategorie.rism_kategorie_name }}</p>
+                                <span>{{ rism_kategorie.anzahl_werke }}</span>
+                            </a>
+                            {% for rism_id, rism in rism_kategorie.besetzungen.items() %}
+                                <a class="list-group-item list-group-item-action d-flex justify-content-between ps-2" href="{{ url_for('suche.ergebnis_werksuche') }}?rism={{ rism_id }}" data-bs-toggle="tooltip" data-bs-title="{{ rism.rism_beschreibung }}">
+                                    <p class="ps-5 m-0">{{ rism.rism_code }}</p>
+                                    <span>{{ rism.anzahl_werke }}</span>
+                                </a>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script>
+        // Aktivieren der Tooltips, die auf der Seite verwendet werden
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+
+    <script>
+        const gattung_select = document.querySelector('#gattung');
+        const untergattung_select = document.querySelector('#untergattung');
+        const detailgattung_select = document.querySelector('#detailgattung');
+        const rism_kategorie_select = document.querySelector('#rism_kategorie');
+        const rism_select = document.querySelector('#rism');
+
+        gattung_select.addEventListener('change', (event) => {
+            // Setzt die Eingabe der Select-Elemente zurück
+            untergattung_select.value = "0";
+            detailgattung_select.value = "0";
+
+            // Geht alle <option> Elemente mit data-id-gattung (= Untergattungen & Detailgattungen) durch und prüft, ob diese die ausgewählte Gattung als FK haben.
+            document.querySelectorAll('[data-id-gattung]').forEach((item) => {
+                if (item.getAttribute('data-id-gattung') !== gattung_select.value && item.value !== "0" && gattung_select.value !== "0") {
+                    item.setAttribute('hidden', 'true');
+                } else {
+                    item.removeAttribute('hidden');
+                }
+            });
+        });
+
+        untergattung_select.addEventListener('change', (event) => {
+            // Setzt die Eingabe des Select-Elements zurück
+            detailgattung_select.value = "0";
+
+            // Geht alle <option> Elemente mit data-id-untergattung (= Detailgattungen) durch und prüft, ob diese die ausgewählte Untergattung als FK haben.
+            document.querySelectorAll('[data-id-untergattung]').forEach((item) => {
+                if (item.getAttribute('data-id-untergattung') !== untergattung_select.value && item.value !== "0" && untergattung_select.value !== "0") {
+                    item.setAttribute('hidden', 'true');
+                } else {
+                    item.removeAttribute('hidden');
+                }
+            });
+        });
+
+        rism_kategorie_select.addEventListener('change', (event) => {
+            // Setzt die Eingabe des Select-Elements zurück
+            rism_select.value = "0";
+
+            // Geht alle <option> Elemente mit data-id-rism-kategorie (= RISM Codes) durch und pürft, ob diese die ausgewählte Kategorie als FK haben.
+            document.querySelectorAll('[data-id-rism-kategorie]').forEach((item) => {
+                if (item.getAttribute('data-id-rism-kategorie') !== rism_kategorie_select.value && item.value !== "0" && rism_kategorie_select.value !== "0") {
+                    item.setAttribute('hidden', 'true');
+                } else {
+                    item.removeAttribute('hidden');
+                }
+            })
+        });
+    </script>
+{% endblock %}

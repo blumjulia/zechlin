@@ -1,0 +1,33 @@
+{% extends 'dokumentation/_schema.html' %}
+
+{% block schema_er_diagramm %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_diagramm_verlag.png') }}" alt="ER Diagramm">
+{% endblock %}
+
+{% block schema_datenmodell %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_datenmodell_verlag.png') }}" alt="ER Datenmodell">
+{% endblock %}
+
+
+{% block schema_datenbank %}
+    <table class="table table-striped w-100" id="data_table">
+        <thead>
+        <tr>
+            <th scope="col">verlag_id</th>
+            <th scope="col">verlag_name</th>
+            <th scope="col">verlag_dnb</th>
+            <th scope="col">verlag_webseite</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for verlag in verlage %}
+            <tr>
+                <th scope="row">{{ verlag.verlag_id }}</th>
+                <td>{{ verlag.verlag_name }}</td>
+                <td>{{ verlag.verlag_dnb }}</td>
+                <td>{{ verlag.verlag_webseite }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

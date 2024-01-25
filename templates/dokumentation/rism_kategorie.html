@@ -1,0 +1,28 @@
+{% extends 'dokumentation/_schema.html' %}
+
+{% block schema_er_diagramm %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_diagramm_rism-kategorie.png') }}" alt="ER Diagramm">
+{% endblock %}
+
+{% block schema_datenmodell %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_datenmodell_rism-kategorie.png') }}" alt="ER Datenmodell">
+{% endblock %}
+
+{% block schema_datenbank %}
+    <table class="table table-striped w-100" id="data_table">
+        <thead>
+        <tr>
+            <th scope="col">rism_kategorie_id</th>
+            <th scope="col">rism_kategorie_name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for rism_kategorie in rism_kategorien %}
+            <tr>
+                <th scope="row">{{ rism_kategorie.rism_kategorie_id }}</th>
+                <td>{{ rism_kategorie.rism_kategorie_name }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

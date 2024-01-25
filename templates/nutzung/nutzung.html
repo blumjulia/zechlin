@@ -1,0 +1,401 @@
+{% extends 'main.html' %}
+
+{% block body_content %}
+    <div class="card my-4">
+        <div class="card-body bg-body-secondary text-center p-4">
+            <h2>{% if nutzung.werk_titel is not none %}{{ nutzung.werk_titel }}{% else %}<i>[Gespieltes Werk unbekannt]</i>{% endif %}</h2>
+            <p class="fw-semibold mb-0">{{ nutzung.nutzung_art }}</p>
+        </div>
+    </div>
+
+    <div class="accordion mb-5" id="nutzung_accordion">
+        <div class="accordion-item border-0">
+            <div class="accordion-header">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_nutzung_details" aria-expanded="true" aria-controls="bereich_nutzung_details">
+                    <h4>
+                        <i class="fa-solid fa-info me-1"></i>
+                        {{ nutzung.nutzung_art }} Details
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_nutzung_details">
+                {% if nutzung.nutzung_erstauffuehrung_kommentar is not none %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Erstaufführung Kommentar
+                        </div>
+                        <div class="col-9">
+                            {{ nutzung.nutzung_erstauffuehrung_kommentar }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Kontext
+                    </div>
+                    <div class="col-9">
+                        {% if nutzung.nutzung_kontext is not none %}
+                            {{ nutzung.nutzung_kontext }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Zeitpunkt:
+                    </div>
+                    <div class="col-9">
+                        {% if nutzung.nutzung_datum_tag is not none %}
+                            {% set tag = '{:02.0f}'.format(nutzung.nutzung_datum_tag|float) %}
+                        {% else %}
+                            {% set tag  = '[??]' %}
+                        {% endif %}
+                        {% if nutzung.nutzung_datum_monat is not none %}
+                            {% set monat = '{:02.0f}'.format(nutzung.nutzung_datum_monat|float) %}
+                        {% else %}
+                            {% set monat = '[??]' %}
+                        {% endif %}
+                        {% if nutzung.nutzung_datum_jahr is not none %}
+                            {% set jahr = nutzung.nutzung_datum_jahr %}
+                        {% else %}
+                            {% set jahr = '[????]' %}
+                        {% endif %}
+
+                        {{ '{}.{}.{}'.format(tag, monat, jahr) }}{% if nutzung.nutzung_zeit_stunde is not none %},{% endif %}
+                        {% if nutzung.nutzung_zeit_stunde is not none and nutzung.nutzung_zeit_minute is not none %} {{ '{:02.0f}'.format(nutzung.nutzung_zeit_stunde|float) }}:{{ '{:02.0f}'.format(nutzung.nutzung_zeit_minute|float) }} Uhr{% endif %}
+                    </div>
+                </div>
+                {% if nutzung.nutzung_datum_kommentar is not none %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Datum-Kommentar:
+                        </div>
+                        <div class="col-9">
+                            {{ nutzung.nutzung_datum_kommentar }}
+                        </div>
+                    </div>
+                {% endif %}
+                {% if nutzung.nutzung_beteiligte is not none %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Beteiligte:
+                        </div>
+                        <div class="col-9">
+                            {{ nutzung.nutzung_beteiligte }}
+                        </div>
+                    </div>
+                {% endif %}
+                {% if nutzung.nutzung_spieldauer_in_s is not none %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Spieldauer:
+                        </div>
+                        <div class="col-9">
+                            {% if nutzung.nutzung_spieldauer_in_s % 60 == 0 %}
+                                {{ '{:.0f}'.format(nutzung.nutzung_spieldauer_in_s / 60) }} Minuten
+                            {% else %}
+                                {{ '{:.0f}'.format((nutzung.nutzung_spieldauer_in_s - (nutzung.nutzung_spieldauer_in_s % 60)) / 60) }} Minuten
+                                {{ nutzung.nutzung_spieldauer_in_s % 60 | int }} Sekunden
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+                {% if nutzung.nutzung_kommentar is not none %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Kommentar:
+                        </div>
+                        <div class="col-9">
+                            {{ nutzung.nutzung_kommentar }}
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Persistente ID:
+                    </div>
+                    <div class="col-9">
+                        {{ config.pid.prefix + config.pid.separator + config.pid.objekt.nutzung + config.pid.separator + nutzung.nutzung_id|string }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Statische URL:
+                    </div>
+                    <div class="col-9">
+                        <a href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.nutzung + config.pid.separator + nutzung.nutzung_id|string, _external=True ) }}"
+                           class="link-secondary">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.nutzung + config.pid.separator + nutzung.nutzung_id|string, _external=True ) }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if nutzung.fk_werk_id is not none %}
+            <div class="accordion-item border-0">
+                <div class="accordion-header">
+                    <div class="accordion-button bg-body position-relative" data-bs-toggle="collapse" data-bs-target="#bereich_nutzung_werk" aria-expanded="true" aria-controls="bereich_nutzung_werk">
+                        <h4>
+                            <i class="fa-solid fa-pencil me-1"></i>
+                            Werk
+                        </h4>
+                        <div class="position-absolute end-0 pe-5 me-2">
+                            <a href="{{ url_for('werk.werk', werk_id=nutzung.werk_id) }}" class="btn btn-sm btn-outline-primary icon-btn">Werk</a>
+                            {% if nutzung.gattung_id is not none %}<a href="{{ url_for('objekt.gattung', gattung_id=nutzung.gattung_id) }}" class="btn btn-sm btn-outline-primary">Gattung</a>{% endif %}
+                            {% if nutzung.untergattung_id is not none %}<a href="{{ url_for('objekt.untergattung', untergattung_id=nutzung.untergattung_id) }}" class="btn btn-sm btn-outline-primary">Untergattung</a>{% endif %}
+                            {% if nutzung.detailgattung_id is not none %}<a href="{{ url_for('objekt.detailgattung', detailgattung_id=nutzung.detailgattung_id) }}" class="btn btn-sm btn-outline-primary">Detailgattung</a>{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_nutzung_werk">
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Werknr (Zechlin):
+                        </div>
+                        <div class="col-9">
+                            {% if nutzung.werk_nummer_zechlin is not none %}
+                                {{ nutzung.werk_nummer_zechlin }}
+                            {% else %}
+                                <i>[unbekannt]</i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Titel:
+                        </div>
+                        <div class="col-9">
+                            {% if nutzung.werk_titel is not none %}
+                                {{ nutzung.werk_titel }}
+                            {% else %}
+                                <i>[unbekannt]</i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if nutzung.werk_untertitel is not none %}
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                Untertitel:
+                            </div>
+                            <div class="col-9">
+                                {{ nutzung.werk_untertitel }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if besetzung is not none %}
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                Besetzung:
+                            </div>
+                            <div class="col-9">
+                                {% for rism in besetzung %}
+                                    <span class="py-1 px-2 me-2 border-1 border-bottom border-secondary border-opacity-50" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ rism.rism_beschreibung }}">{{ rism.rism_code }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if nutzung.gattung_name is not none %}
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                Gattung:
+                            </div>
+                            <div class="col-9">
+                                {{ nutzung.gattung_name }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if nutzung.untergattung_name is not none %}
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                Untergattung:
+                            </div>
+                            <div class="col-9">
+                                {{ nutzung.untergattung_name }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if nutzung.detailgattung_name is not none %}
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                Detailgattung:
+                            </div>
+                            <div class="col-9">
+                                {{ nutzung.detailgattung_name }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Persistente ID:
+                        </div>
+                        <div class="col-9">
+                            {{ config.pid.prefix + config.pid.separator + config.pid.objekt.werk + config.pid.separator + nutzung.fk_werk_id|string }}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Statische URL:
+                        </div>
+                        <div class="col-9">
+                            <a href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.werk + config.pid.separator + nutzung.fk_werk_id|string, _external=True ) }}"
+                               class="link-secondary">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.werk + config.pid.separator + nutzung.fk_werk_id|string, _external=True ) }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if nutzung.fk_ort_id is not none %}
+            <div class="accordion-item border-0">
+                <div class="accordion-header">
+                    <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_nutzung_ort" aria-expanded="true" aria-controls="bereich_nutzung_ort">
+                        <h4>
+                            <i class="fa-solid fa-map me-1"></i>
+                            Ort
+                        </h4>
+                        <div class="position-absolute end-0 pe-5 me-2">
+                            <a href="{{ url_for('objekt.ort', ort_id=nutzung.ort_id) }}" class="btn btn-sm btn-outline-primary icon-btn">Ort</a>
+                            <a href="https://www.openstreetmap.org/#map=18/{{ nutzung.ort_latitude }}/{{ nutzung.ort_longitude }}" class="btn btn-sm btn-outline-secondary icon-btn">OpenStreetMap</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_nutzung_ort">
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Name:
+                        </div>
+                        <div class="col-9">
+                            {{ nutzung.ort_name }}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Adresse:
+                        </div>
+                        <div class="col-9">
+                            {{ nutzung.ort_adresse }}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Koordinaten:
+                        </div>
+                        <div class="col-9">
+                            lat = {{ nutzung.ort_latitude }}; lon = {{ nutzung.ort_longitude }}
+                        </div>
+                    </div>
+                    {% if nutzung.ort_kommentar is not none %}
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                Kommentar:
+                            </div>
+                            <div class="col-9">
+                                {{ nutzung.ort_kommentar }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Persistente ID:
+                        </div>
+                        <div class="col-9">
+                            {{ config.pid.prefix + config.pid.separator + config.pid.objekt.ort + config.pid.separator + nutzung.ort_id|string }}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Statische URL:
+                        </div>
+                        <div class="col-9">
+                            <a href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.ort + config.pid.separator + nutzung.ort_id|string, _external=True ) }}"
+                               class="link-secondary">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.ort + config.pid.separator + nutzung.ort_id|string, _external=True ) }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="accordion-item border-0">
+            <div class="accordion-header ">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_nutzung_quelle" aria-expanded="true" aria-controls="bereich_nutzung_quelle">
+                    <h4>
+                        <i class="fa-solid fa-paperclip me-1"></i>
+                        Quellen
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2 z-max">
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_nutzung_quelle">
+                {% for quelle in quellen %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Name:
+                        </div>
+                        <div class="col-9">
+                            {{ quelle.quelle_nutzung_name }}
+                        </div>
+                    </div>
+                    {% if quelle.quelle_nutzung_hyperlink is not none %}
+                        <div class="row mb-2">
+                            <div class="col-3">
+                                Hyperlink:
+                            </div>
+                            <div class="col-9">
+                                <a href="{{ quelle.quelle_nutzung_hyperlink }}" class="link-secondary">{{ quelle.quelle_nutzung_hyperlink }}</a>
+                                {% if quelle.quelle_nutzung_datum_aufgerufen is not none %}
+                                    (aufgerufen am {{ quelle.quelle_nutzung_datum_aufgerufen.strftime('%d.%m.%Y') }})
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="mb-4"></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="accordion-item border-0">
+            <div class="accordion-header ">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_nutzung_export" aria-expanded="true" aria-controls="bereich_nutzung_export">
+                    <h4>
+                        <i class="fa-solid fa-file-export me-1"></i>
+                        Daten
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2 z-max">
+                        <a class="btn btn-sm btn-outline-secondary" href="https://schema.org/Event">JSON-LD Schema</a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_nutzung_export">
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Exportformat:
+                    </div>
+                    <div class="col-9">
+                        <a class="btn btn-sm btn-outline-primary me-2" href="{{ url_for('export.json_ld_nutzung', nutzung_id=nutzung.nutzung_id) }}">JSON-LD</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script>
+        // Aktivieren der Tooltips, die auf der Seite verwendet werden
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+        // Verhindert, dass beim Klicken der Buttons das Accordion aktiv wird, anstatt die Webseite aufzurufen
+        const link_buttons = document.querySelectorAll('a.btn');
+        link_buttons.forEach((item) => {
+            item.addEventListener('click', (event) => {
+                window.location = event.target.getAttribute('href');
+                return false;
+            });
+        });
+    </script>
+{% endblock %}

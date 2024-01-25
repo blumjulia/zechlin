@@ -1,0 +1,70 @@
+{% extends 'dokumentation/_schema.html' %}
+
+{% block schema_er_diagramm %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_diagramm_werk.png') }}" alt="ER Diagramm">
+{% endblock %}
+
+{% block schema_datenmodell %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_datenmodell_werk.png') }}" alt="ER Datenmodell">
+{% endblock %}
+
+{% block schema_datenbank %}
+<table class="table table-striped" id="data_table">
+            <thead>
+            <tr>
+                <th scope="col">werk_id</th>
+                <th scope="col">werk_titel</th>
+                <th scope="col">werk_untertitel</th>
+                <th scope="col">werk_inhalt</th>
+                <th scope="col">werk_jahr_entstehung_beginn</th>
+                <th scope="col">werk_jahr_entstehung_ende</th>
+                <th scope="col">werk_nummer_zechlin</th>
+                <th scope="col">werk_textgrundlage_person</th>
+                <th scope="col">werk_textgrundlage_werk</th>
+                <th scope="col">werk_kuenstler_name</th>
+                <th scope="col">werk_spieldauer_in_s</th>
+                <th scope="col">werk_ort_autograph</th>
+                <th scope="col">werk_ort_autograph_kopie</th>
+                <th scope="col">werk_existenzhinweis</th>
+                <th scope="col">werk_verlag_hyperlink</th>
+                <th scope="col">werk_widmung</th>
+                <th scope="col">fk_werk_id_gesamtwerk</th>
+                <th scope="col">fk_werk_id_fassung_von</th>
+                <th scope="col">fk_werkart_id</th>
+                <th scope="col">fk_gattung_id</th>
+                <th scope="col">fk_untergattung_id</th>
+                <th scope="col">fk_detailgattung_id</th>
+                <th scope="col">fk_verlag_id_aktuell</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for werk in werke %}
+                <tr>
+                    <th scope="row">{{ werk.werk_id }}</th>
+                    <td>{{ werk.werk_titel }}</td>
+                    <td>{{ werk.werk_untertitel }}</td>
+                    <td>{{ werk.werk_inhalt }}</td>
+                    <td>{{ werk.werk_jahr_entstehung_beginn }}</td>
+                    <td>{{ werk.werk_jahr_entstehung_ende }}</td>
+                    <td>{{ werk.werk_nummer_zechlin }}</td>
+                    <td>{{ werk.werk_textgrundlage_person }}</td>
+                    <td>{{ werk.werk_textgrundlage_werk }}</td>
+                    <td>{{ werk.werk_kuenstler_name }}</td>
+                    <td>{{ werk.werk_spieldauer_in_s }}</td>
+                    <td>{{ werk.werk_ort_autograph }}</td>
+                    <td>{{ werk.werk_ort_autograph_kopie }}</td>
+                    <td>{{ werk.werk_existenzhinweis }}</td>
+                    <td>{{ werk.werk_verlag_hyperlink }}</td>
+                    <td>{{ werk.werk_widmung }}</td>
+                    <td>{{ werk.fk_werk_id_gesamtwerk }}</td>
+                    <td>{{ werk.fk_werk_id_fassung_von }}</td>
+                    <td>{{ werk.fk_werkart_id }}</td>
+                    <td>{{ werk.fk_gattung_id }}</td>
+                    <td>{{ werk.fk_untergattung_id }}</td>
+                    <td>{{ werk.fk_detailgattung_id }}</td>
+                    <td>{{ werk.fk_verlag_id_aktuell }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends 'main.html' %}
+
+{% block body_content %}
+    <div class="card my-4">
+        <div class="card-body bg-body-secondary text-center p-4">
+            <h2>{{ untergattung.untergattung_name }}</h2>
+        </div>
+    </div>
+
+    <div class="accordion mb-5">
+        <div class="accordion-item border-0">
+            <div class="accordion-header">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_untergattung_details" aria-expanded="true" aria-controls="bereich_untergattung_details">
+                    <h4>
+                        <i class="fa-solid fa-info me-1"></i>
+                        Details
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_untergattung_details">
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Name:
+                    </div>
+                    <div class="col-9">
+                        {{ untergattung.untergattung_name }}
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Persistente ID:
+                    </div>
+                    <div class="col-9">
+                        {{ config.pid.prefix + config.pid.separator + config.pid.objekt.untergattung + config.pid.separator + untergattung.untergattung_id|string }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Statische URL:
+                    </div>
+                    <div class="col-9">
+                        <a class="link-secondary"
+                           href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.untergattung + config.pid.separator + untergattung.untergattung_id|string, _external='true') }}">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.untergattung + config.pid.separator + untergattung.untergattung_id|string, _external='true') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item border-0">
+            <div class="accordion-header">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_untergattung_detailgattungen" aria-expanded="true" aria-controls="bereich_untergattung_detailgattungen">
+                    <h4>
+                        <i class="fa-solid fa-sitemap me-1"></i>
+                        Detailgattungen ({{ detailgattungen | length }})
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_untergattung_detailgattungen">
+                {% for detailgattung in detailgattungen %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Name:
+                        </div>
+                        <div class="col-9">
+                            {{ detailgattung.detailgattung_name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Persistente ID:
+                        </div>
+                        <div class="col-9">
+                            {{ config.pid.prefix + config.pid.separator + config.pid.objekt.detailgattung + config.pid.separator + detailgattung.detailgattung_id|string }}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Statische URL:
+                        </div>
+                        <div class="col-9">
+                            <a class="link-secondary"
+                               href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.detailgattung + config.pid.separator + detailgattung.detailgattung_id|string, _external='true') }}">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.detailgattung + config.pid.separator + detailgattung.detailgattung_id|string, _external='true') }}</a>
+                        </div>
+                    </div>
+                    <div class="mb-4"></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="accordion-item border-0">
+            <div class="accordion-header">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_untergattung_gattung" aria-expanded="true" aria-controls="bereich_untergattung_gattung">
+                    <h4>
+                        <i class="fa-solid fa-sitemap me-1"></i>
+                        Übergeordnet
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('objekt.gattung', gattung_id=untergattung.gattung_id) }}">Gattung</a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_untergattung_gattung">
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Gattung:
+                    </div>
+                    <div class="col-9">
+                        {{ untergattung.gattung_name }}
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Persistente ID:
+                    </div>
+                    <div class="col-9">
+                        {{ config.pid.prefix + config.pid.separator + config.pid.objekt.gattung + config.pid.separator + untergattung.gattung_id|string }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Statische URL:
+                    </div>
+                    <div class="col-9">
+                        <a class="link-secondary"
+                           href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.gattung + config.pid.separator + untergattung.gattung_id|string, _external='true') }}">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.gattung + config.pid.separator + untergattung.gattung_id|string, _external='true') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item border-0">
+            <div class="accordion-header">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_untergattung_werke" aria-expanded="true" aria-controls="bereich_untergattung_werke">
+                    <h4>
+                        <i class="fa-solid fa-pencil me-1"></i>
+                        Werke ({{ werke | length }})
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_untergattung_werke">
+                <table class="table table-hover w-100" id="data_table">
+                    <thead>
+                    <tr>
+                        <th scope="col">WN zechlin</th>
+                        <th scope="col">Werktitel</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for werk in werke %}
+                        <tr class="py-2" onclick="location.href='{{ url_for('werk.werk', werk_id=werk.werk_id) }}'">
+                            <td>{% if werk.werk_nummer_zechlin %}{{ werk.werk_nummer_zechlin }}{% else %}[?]{% endif %}</td>
+                            <td>
+                                <span class="fw-semibold">{{ werk.werk_titel }}</span><br/>
+                                {% if werk.werk_untertitel %}{{ werk.werk_untertitel }}{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script src="{{ url_for('static', filename='plugins/DataTables/datatables.js') }}"></script>
+    <script>
+        // Aktivieren der Tooltips, die auf der Seite verwendet werden
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+        // Verhindert, dass beim Klicken der Buttons das Accordion aktiv wird, anstatt die Webseite aufzurufen
+        const link_buttons = document.querySelectorAll('a.btn');
+        link_buttons.forEach((item) => {
+            item.addEventListener('click', (event) => {
+                window.location = event.target.getAttribute('href');
+                return false;
+            });
+        });
+
+        // Initiieren der Datentabelle (Plugin: DataTable)
+        const table = $('#data_table').DataTable({
+            "language": {
+                url: "{{ url_for('static', filename='plugins/DataTables/de-DE.json') }}"
+            },
+            "scrollX": true,
+            "autoWidth": true
+        });
+    </script>
+{% endblock %}

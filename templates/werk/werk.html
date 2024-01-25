@@ -1,0 +1,571 @@
+{% extends 'main.html' %}
+
+{% block body_content %}
+    <div class="card my-4">
+        <div class="card-body bg-body-secondary text-center p-4">
+            <h2>{{ werk.werk_titel }}</h2>
+            {% if werk.werk_untertitel is not none %}<p class="fw-semibold mb-0">{{ werk.werk_untertitel }}</p>{% endif %}
+        </div>
+    </div>
+
+    <div class="accordion mb-5">
+    <div class="accordion-item border-0">
+        <div class="accordion-header">
+            <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_werk_werkdetails" aria-expanded="true" aria-controls="bereich_werk_werkdetails">
+                <h4>
+                    <i class="fa-solid fa-pencil me-1"></i>
+                    Werkdetails
+                </h4>
+                <div class="position-absolute end-0 pe-5 me-2">
+                    {% if werk.gattung_id is not none %}
+                        <a href="{{ url_for('objekt.gattung', gattung_id=werk.gattung_id) }}" class="btn btn-sm btn-outline-primary icon-btn">
+                            Gattung
+                        </a>
+                    {% endif %}
+                    {% if werk.untergattung_id is not none %}
+                        <a href="{{ url_for('objekt.untergattung', untergattung_id=werk.untergattung_id) }}" class="btn btn-sm btn-outline-primary icon-btn">
+                            Untergattung
+                        </a>
+                    {% endif %}
+                    {% if werk.detailgattung_id is not none %}
+                        <a href="{{ url_for('objekt.detailgattung', detailgattung_id=werk.detailgattung_id) }}" class="btn btn-sm btn-outline-primary icon-btn">
+                            Detailgattung
+                        </a>
+                    {% endif %}
+                    {% if werk.werk_verlag_hyperlink is not none %}
+                        <a href="{{ werk.werk_verlag_hyperlink }}" class="btn btn-sm btn-outline-secondary icon-btn">
+                            Werk (Verlag)
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_werk_werkdetails">
+            <div class="row mb-2">
+                <div class="col-3">
+                    Werknr (Zechlin):
+                </div>
+                <div class="col-9">
+                    {% if werk.werk_nummer_zechlin is not none %}
+                        {{ werk.werk_nummer_zechlin }}
+                    {% else %}
+                        <i>[unbekannt]</i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Werkart:
+                </div>
+                <div class="col-9">
+                    {{ werk.werkart_name }}
+                </div>
+            </div>
+
+            {% if werk.werk_inhalt is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Werkinhalt:
+                    </div>
+                    <div class="col-9">
+                        {% for werk_inhalt in werk.werk_inhalt.split(' / ') %}
+                            {{ werk_inhalt }}<br/>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Spieldauer:
+                </div>
+                <div class="col-9">
+                    {% if werk.werk_spieldauer_in_s is none %}
+                        <i>[unbekannt]</i>
+                    {% elif werk.werk_spieldauer_in_s % 60 == 0 %}
+                        {{ '{:.0f}'.format(werk.werk_spieldauer_in_s / 60) }} Minuten
+                    {% else %}
+                        {{ '{:.0f}'.format(werk.werk_spieldauer_in_s - (werk.werk_spieldauer_in_s % 60) / 60) }} Minuten
+                        {{ werk.werk_spieldauer_in_s % 60 | int }} Sekunden
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Entstehung:
+                </div>
+                <div class="col-9">
+                    {% if werk.werk_jahr_entstehung_beginn is not none %}
+                        {{ werk.werk_jahr_entstehung_beginn }}
+                    {% else %}
+                        [unbekannt]
+                    {% endif %}
+                    bis
+                    {% if werk.werk_jahr_entstehung_ende is not none %}
+                        {{ werk.werk_jahr_entstehung_ende }}
+                    {% else %}
+                        <i>[unbekannt]</i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Besetzung:
+                </div>
+                <div class="col-9">
+                    {% for rism in besetzungen %}
+                        <span class="py-1 px-2 me-2 border-1 border-bottom border-secondary border-opacity-50" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ rism.rism_beschreibung }}">{{ rism.rism_code }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">Künstlerin:</div>
+                <div class="col-9">{{ werk.werk_kuenstler_name }}</div>
+            </div>
+
+            {% if werk.gattung_name is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">Gattung</div>
+                    <div class="col-9">{{ werk.gattung_name }}</div>
+                </div>
+            {% endif %}
+
+            {% if werk.untergattung_name is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">Untergattung</div>
+                    <div class="col-9">{{ werk.untergattung_name }}</div>
+                </div>
+            {% endif %}
+
+            {% if werk.detailgattung_name is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">Detailgattung</div>
+                    <div class="col-9">{{ werk.detailgattung_name }}</div>
+                </div>
+            {% endif %}
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Widmung:
+                </div>
+                <div class="col-9">
+                    {% if werk.werk_widmung is not none %}
+                        {{ werk.werk_widmung }}
+                    {% else %}
+                        <i>[unbekannt]</i>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if werk.werk_verlag_hyperlink is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Verlag-Hyperlink:
+                    </div>
+                    <div class="col-9">
+                        <a class="link-secondary" href="{{ werk.werk_verlag_hyperlink }}">{{ werk.werk_verlag_hyperlink }}</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="accordion-item border-0">
+        <div class="accordion-header ">
+            <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_werk_werkinfo" aria-expanded="true" aria-controls="bereich_werk_werkinfo">
+                <h4>
+                    <i class="fa-solid fa-info me-1"></i>
+                    Werkinfo
+                </h4>
+                <div class="position-absolute end-0 pe-5 me-2">
+                    {% if werk.fk_werk_id_gesamtwerk is not none %}
+                        <a href="{{ url_for('werk.werk', werk_id=werk.fk_werk_id_gesamt) }}" class="btn btn-sm btn-outline-primary icon-btn">Gesamtwerk</a>
+                    {% endif %}
+                    {% if werk.fk_werk_id_fassung_von is not none %}
+                        <a href="{{ url_for('werk.werk', werk_id=werk.fk_werk_id_fassung_von) }}" class="btn btn-sm btn-outline-primary icon-btn">Ursprungsfassung</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_werk_werkinfo">
+            <div class="row mb-2">
+                <div class="col-3">
+                    Gesamtwerk:
+                </div>
+                <div class="col-9">
+                    {% if werk.fk_werk_id_gesamtwerk is not none %}
+                        {{ werk.fk_werk_id_gesamtwerk }}
+                    {% else %}
+                        <i>Dieses Werk ist nicht Teil eines Gesamtwerkes.</i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Fassung von:
+                </div>
+                <div class="col-9">
+                    {% if werk.fk_werk_id_fassung_von is not none %}
+                        {{ werk.fk_werk_id_fassung_von }}
+                    {% else %}
+                        <i>Dieses Werk ist keine Fassung von einem Werk.</i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Autograph:
+                </div>
+                <div class="col-9">
+                    {% if werk.werk_ort_autograph is not none %}
+                        {{ werk.werk_ort_autograph }}
+                    {% else %}
+                        <i>[unbekannt]</i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Autograph-Kopie:
+                </div>
+                <div class="col-9">
+                    {% if werk.werk_ort_autograph_kopie is not none %}
+                        {{ werk.werk_ort_autograph_kopie }}
+                    {% else %}
+                        <i>[unbekannt]</i>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if werk.werk_existenzhinweis is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Existenzhinweis:
+                    </div>
+                    <div class="col-9">
+                        {{ werk.werk_existenzhinweis }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Persistente ID:
+                </div>
+                <div class="col-9">
+                    {{ config.pid.prefix + config.pid.separator + config.pid.objekt.werk + config.pid.separator + werk.werk_id|string }}
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-3">
+                    Statische URL:
+                </div>
+                <div class="col-9">
+                    <a class="link-secondary"
+                       href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.werk + config.pid.separator + werk.werk_id|string, _external='true') }}">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.werk + config.pid.separator + werk.werk_id|string, _external='true') }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if ausgaben | length > 0 %}
+
+        <div class="accordion-item border-0">
+            <div class="accordion-header ">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_werk_ausgabe" aria-expanded="true" aria-controls="bereich_werk_ausgabe">
+                    <h4>
+                        <i class="fa-brands fa-readme me-1"></i>
+                        Ausgabe
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                        {% for ausgabe in ausgaben %}
+                            {% if ausgabe.fk_verlag_id is not none %}
+                                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('objekt.verlag', verlag_id=ausgabe.fk_verlag_id) }}">{{ ausgabe.verlag_name }}</a>
+                            {% endif %}
+
+                            {% if ausgabe.ausgabe_gnd is not none %}
+                                <a class="btn btn-sm btn-outline-secondary" href="{{ ausgabe.ausgabe_gnd }}">GND</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_werk_ausgabe">
+                {% for ausgabe in ausgaben %}
+
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Jahr:
+                        </div>
+                        <div class="col-9">
+                            {% if ausgabe.ausgabe_jahr is not none %}
+                                {{ ausgabe.ausgabe_jahr }}
+                            {% else %}
+                                <i>[unbekannt]</i>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Art:
+                        </div>
+                        <div class="col-9">
+                            {% if ausgabe.ausgabe_typ is not none %}
+                                {{ ausgabe.ausgabe_typ }}
+                            {% else %}
+                                <i>[unbekannt]</i>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Herausgebender Verlag:
+                        </div>
+                        <div class="col-9">
+                            {{ ausgabe.verlag_name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            DNB Hyperlink:
+                        </div>
+                        <div class="col-9">
+                            <a href="{{ ausgabe.ausgabe_gnd }}" class="link-secondary">{{ ausgabe.ausgabe_gnd }}</a>
+                        </div>
+                    </div>
+
+                    <div class="mb-4"></div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if werk.fk_verlag_id_aktuell is not none %}
+        <div class="accordion-item border-0">
+            <div class="accordion-header ">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_werk_verlag" aria-expanded="true" aria-controls="bereich_werk_verlag">
+                    <h4>
+                        <i class="fa-solid fa-paperclip me-1"></i>
+                        Verlag
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('objekt.verlag', verlag_id=werk.verlag_id) }}">{{ werk.verlag_name }}</a>
+                        {% if werk.verlag_dnb is not none %}<a class="btn btn-sm btn-outline-secondary" href="{{ werk.verlag_dnb }}">GND</a>{% endif %}
+                        {% if werk.verlag_webseite is not none %}<a class="btn btn-sm btn-outline-secondary" href="{{ werk.verlag_webseite }}">Verlag-Webseite</a>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_werk_verlag">
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Aktueller Verlag:
+                    </div>
+                    <div class="col-9">
+                        {{ werk.verlag_name }}
+                    </div>
+                </div>
+
+                {% if werk.verlag_webseite is not none %}
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Webseite:
+                        </div>
+                        <div class="col-9">
+                            <a href="{{ werk.verlag_webseite }}" class="link-secondary">{{ werk.verlag_webseite }}</a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="row mb-2">
+                    <div class="col-3">
+                        GND:
+                    </div>
+                    <div class="col-9">
+                        <a href="{{ werk.verlag_dnb }}" class="link-secondary">{{ werk.verlag_dnb }}</a>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Persistente ID:
+                    </div>
+                    <div class="col-9">
+                        {{ config.pid.prefix + config.pid.separator + config.pid.objekt.verlag + config.pid.separator + werk.verlag_id|string }}
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Statische URL:
+                    </div>
+                    <div class="col-9">
+                        <a class="link-secondary"
+                           href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.verlag + config.pid.separator + werk.verlag_id|string, _external='true') }}">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.verlag + config.pid.separator + werk.verlag_id|string, _external='true') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if urauffuehrung is not none %}
+        <div class="accordion-item border-0">
+        <div class="accordion-header ">
+            <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_werk_urauffuehrung" aria-expanded="true" aria-controls="bereich_werk_urauffuehrung">
+                <h4>
+                    <i class="fa-solid fa-file-export me-1"></i>
+                    Uraufführung
+                </h4>
+                <div class="position-absolute end-0 pe-5 me-2 z-max">
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('nutzung.nutzung', nutzung_id=urauffuehrung.nutzung_id) }}">Uraufführung</a>
+                    {% if urauffuehrung.ort_id is not none %}
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('objekt.ort', ort_id=urauffuehrung.ort_id) }}">Ort</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_werk_urauffuehrung">
+            <div class="row mb-2">
+                <div class="col-3">
+                    Aufführungskontext:
+                </div>
+                <div class="col-9">
+                    {% if urauffuehrung.nutzung_kontext is not none %}
+                        {{ urauffuehrung.nutzung_kontext }}
+                    {% else %}
+                        <i>[unbekannt]</i>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-3">
+                    Aufführungsdatum:
+                </div>
+                <div class="col-9">
+                    {% if urauffuehrung.nutzung_datum_tag is not none %}
+                        {% set tag = '{:02.0f}'.format(urauffuehrung.nutzung_datum_tag|float) %}
+                    {% else %}
+                        {% set tag  = '[??]' %}
+                    {% endif %}
+                    {% if urauffuehrung.nutzung_datum_monat is not none %}
+                        {% set monat = '{:02.0f}'.format(urauffuehrung.nutzung_datum_monat|float) %}
+                    {% else %}
+                        {% set monat = '[??]' %}
+                    {% endif %}
+                    {% if urauffuehrung.nutzung_datum_jahr is not none %}
+                        {% set jahr = urauffuehrung.nutzung_datum_jahr %}
+                    {% else %}
+                        {% set jahr = '[????]' %}
+                    {% endif %}
+
+                    {{ '{}.{}.{}'.format(tag, monat, jahr) }}{% if urauffuehrung.nutzung_zeit_stunde is not none %},{% endif %}
+                    {% if urauffuehrung.nutzung_zeit_stunde is not none and urauffuehrung.nutzung_zeit_minute is not none %}{{ '{:02.0f}'.format(urauffuehrung.nutzung_zeit_stunde|float) }}:{{ '{:02.0f}'.format(urauffuehrung.nutzung_zeit_minute|float) }} Uhr{% endif %}
+                </div>
+            </div>
+            {% if urauffuehrung.nutzung_beteiligte is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Beteiligte:
+                    </div>
+                    <div class="col-9">
+                        {{ urauffuehrung.nutzung_beteiligte }}
+                    </div>
+                </div>
+            {% endif %}
+            {% if urauffuehrung.nutzung_spieldauer_in_s is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Spieldauer:
+                    </div>
+                    <div class="col-9">
+                        {% if urauffuehrung.werk_spieldauer_in_s % 60 == 0 %}
+                            {{ '{:.0f}'.format(urauffuehrung.werk_spieldauer_in_s / 60) }} Minuten
+                        {% else %}
+                            {{ '{:.0f}'.format((urauffuehrung.werk_spieldauer_in_s - (urauffuehrung.werk_spieldauer_in_s % 60)) / 60) }} Minuten
+                            {{ urauffuehrung.werk_spieldauer_in_s % 60 | int }} Sekunden
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            {% if urauffuehrung.ort_name is not none %}
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Ort:
+                    </div>
+                    <div class="col-9">
+                        {{ urauffuehrung.ort_name }}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="row mb-2">
+                <div class="col-3">
+                    Persistente ID:
+                </div>
+                <div class="col-9">
+                    {{ config.pid.prefix + config.pid.separator + config.pid.objekt.nutzung + config.pid.separator + urauffuehrung.nutzung_id|string }}
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">
+                    Statische URL:
+                </div>
+                <div class="col-9">
+                    <a class="link-secondary"
+                       href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.nutzung + config.pid.separator + urauffuehrung.nutzung_id|string, _external='true') }}">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.nutzung + config.pid.separator + urauffuehrung.nutzung_id|string, _external='true') }}</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+<div class="accordion-item border-0">
+    <div class="accordion-header ">
+        <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_werk_export" aria-expanded="true" aria-controls="bereich_werk_export">
+            <h4>
+                <i class="fa-solid fa-file-export me-1"></i>
+                Daten
+            </h4>
+            <div class="position-absolute end-0 pe-5 me-2 z-max">
+                <a class="btn btn-sm btn-outline-secondary" href="https://schema.org/MusicComposition">JSON-LD Schema</a>
+            </div>
+        </div>
+    </div>
+    <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_werk_export">
+        <div class="row mb-2">
+            <div class="col-3">
+                Exportformate:
+            </div>
+            <div class="col-9">
+                <a class="btn btn-sm btn-outline-primary me-2" href="{{ url_for('export.json_ld_werk', werk_id=werk.werk_id) }}">JSON-LD</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script>
+        // Aktiviert alle Tooltips, die auf der Seite verwendet werden
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+        // Verhindert, dass beim Klicken der Buttons das Accordion aktiv wird, anstatt die Webseite aufzurufen
+        const link_buttons = document.querySelectorAll('a.btn');
+        link_buttons.forEach((item) => {
+            item.addEventListener('click', (event) => {
+                window.location = event.target.getAttribute('href');
+                return false;
+            });
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,233 @@
+{% extends 'main.html' %}
+
+{% block body_content %}
+
+    <div class="py-4 text-center border-bottom">
+        <h1 class="fw-bold">{{ anzahl_ergebnisse }} Ergebnisse zu Ihrer Suche: "{{ suchbegriff }}"</h1>
+    </div>
+
+    <div class="mb-4 py-4 border-bottom bg-body-secondary">
+        <form method="GET" action="{{ url_for('suche.ergebnis_schnellsuche') }}">
+            <div class="d-flex flex-wrap px-3 justify-content-sm-between justify-content-md-around">
+                <div class="col-12 col-sm-auto mb-2 mb-sm-0 text-center text-sm-start">
+                    <label for="suche" class="col-form-label">Erneute Suche:</label>
+                </div>
+                <div class="col-12 col-sm-8 mb-2 mb-sm-0">
+                    <input type="search" id="suchbegriff" name="suchbegriff" value="{{ suchbegriff }}" class="form-control">
+                </div>
+                <div class="col-12 col-sm-auto">
+                    <button type="submit" class="btn btn-outline-dark form-control">Suchen</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="accordion" id="suchergebnisse">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed {% if werke | length < 1 %} text-secondary {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#werkErgebnis" aria-expanded="false" aria-controls="werkErgebnis">
+                    Werke ({{ werke | length }})
+                </button>
+            </h2>
+            <div id="werkErgebnis" class="accordion-collapse collapse" data-bs-parent="#suchergebnisse">
+                <div class="list-group p-3 bg-body-secondary">
+                    {% for werk in werke %}
+                        <a href="{{ url_for('werk.werk', werk_id=werk.werk_id) }}" class="list-group-item list-group-item-action mb-1" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div class="d-flex align-items-baseline">
+                                    <h5 class="me-1">
+                                        {{ werk.werk_titel }}
+                                        {% if werk.werk_nummer_zechlin is not none %}(WN {{ werk.werk_nummer_zechlin }}){% endif %}
+                                    </h5>
+                                    {% if werk.werk_untertitel is not none %}
+                                        <p class="mb-1">{{ werk.werk_untertitel }}</p>
+                                    {% endif %}
+                                </div>
+                                <small>Werk</small>
+                            </div>
+                            <small>
+                                Künstler*in: {{ werk.werk_kuenstler_name }}
+                                {% if werk.verlag_name is not none %}| Verlag: {{ werk.verlag_name }} {% endif %}
+                                {% if werk.werk_jahr_entstehung_beginn is not none %}| Entstehung: {{ werk.werk_jahr_entstehung_beginn }} bis {{ werk.werk_jahr_entstehung_ende }}</small> {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed {% if werkarten | length < 1 %} text-secondary {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#werkartErgebnis" aria-expanded="false" aria-controls="werkartErgebnis">
+                    Werkarten ({{ werkarten | length }})
+                </button>
+            </h2>
+            <div id="werkartErgebnis" class="accordion-collapse collapse" data-bs-parent="#suchergebnisse">
+                <div class="list-group p-3 bg-body-secondary">
+                    {% for werkart in werkarten %}
+                        <a href="{{ url_for('objekt.werkart', werkart_id=werkart.werkart_id) }}" class="list-group-item list-group-item-action mb-1" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div class="d-flex align-items-baseline">
+                                    <h5 class="me-1">
+                                        {{ werkart.werkart_name }}
+                                    </h5>
+                                </div>
+                                <small>Werkart</small>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed {% if verlage|length < 1 %} text-secondary {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#verlagErgebnis" aria-expanded="false" aria-controls="verlagErgebnis">
+                    Verlage ({{ verlage|length }})
+                </button>
+            </h2>
+            <div id="verlagErgebnis" class="accordion-collapse collapse" data-bs-parent="#suchergebnisse">
+                <div class="list-group p-3 bg-body-secondary">
+                    {% for verlag in verlage %}
+                        <a href="{{ url_for('objekt.verlag', verlag_id=verlag.verlag_id) }}" class="list-group-item list-group-item-action mb-1" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ verlag.verlag_name }}</h5>
+                                <small>Verlag</small>
+                            </div>
+                            <small>{{ verlag.verlag_dnb }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed {% if orte|length < 1 %} text-secondary {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#ortErgebnis" aria-expanded="false" aria-controls="ortErgebnis">
+                    Ort ({{ orte|length }})
+                </button>
+            </h2>
+            <div id="ortErgebnis" class="accordion-collapse collapse" data-bs-parent="#suchergebnisse">
+                <div class="list-group p-3 bg-body-secondary">
+                    {% for ort in orte %}
+                        <a href="{{ url_for('objekt.ort', ort_id=ort.ort_id) }}" class="list-group-item list-group-item-action mb-1" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ ort.ort_name }}</h5>
+                                <small>Ort</small>
+                            </div>
+                            <p class="mb-1">{{ ort.ort_adresse }}</p>
+                            <small>Koordinaten: lat({{ ort.ort_lat }}), lon({{ ort.ort_lon }})</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed {% if nutzungen|length < 1 %} text-secondary {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#nutzungErgebnis" aria-expanded="false" aria-controls="nutzungErgebnis">
+                    Nutzung ({{ nutzungen|length }})
+                </button>
+            </h2>
+            <div id="nutzungErgebnis" class="accordion-collapse collapse" data-bs-parent="#suchergebnisse">
+                <div class="list-group p-3 bg-body-secondary">
+                    {% for nutzung in nutzungen %}
+                        <a href="{{ url_for('nutzung.nutzung', nutzung_id=nutzung.nutzung_id) }}" class="list-group-item list-group-item-action mb-1" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5>
+                                    {% if nutzung.nutzung_datum_tag is not none %}
+                                        {% set tag = '{:02.0f}'.format(nutzung.nutzung_datum_tag|float) %}
+                                    {% else %}
+                                        {% set tag  = '[??]' %}
+                                    {% endif %}
+                                    {% if nutzung.nutzung_datum_monat is not none %}
+                                        {% set monat = '{:02.0f}'.format(nutzung.nutzung_datum_monat|float) %}
+                                    {% else %}
+                                        {% set monat = '[??]' %}
+                                    {% endif %}
+                                    {% if nutzung.nutzung_datum_jahr is not none %}
+                                        {% set jahr = nutzung.nutzung_datum_jahr %}
+                                    {% else %}
+                                        {% set jahr = '[????]' %}
+                                    {% endif %}
+
+                                    {{ '{}.{}.{}'.format(tag, monat, jahr) }}{% if nutzung.nutzung_zeit_stunde is not none %},{% endif %}
+                                    {% if nutzung.nutzung_zeit_stunde is not none and nutzung.nutzung_zeit_minute is not none %} {{ '{:02.0f}'.format(nutzung.nutzung_zeit_stunde|float) }}:{{ '{:02.0f}'.format(nutzung.nutzung_zeit_minute|float) }} Uhr{% endif %}
+                                </h5>
+                                <small>{% if nutzung.nutzung_ist_urauffuehrung %}Uraufführung{% elif nutzung.nutzung_ist_erstauffuehurng %}Erstaufführung{% else %}{{ nutzung.nutzung_art }}{% endif %}</small>
+                            </div>
+                            <h6 class="mb-1">{% if nutzung.werk_titel is not none %}{{ nutzung.werk_titel }}{% else %}<i>[unbekannt]</i>{% endif %}</h6>
+                            {% if nutzung.nutzung_kontext is not none %}<h6 class="mb-1">{{ nutzung.nutzung_kontext }}</h6>{% endif %}
+                            <small>
+                                {% if nutzung.ort_name is not none %}Aufführungsort: {{ nutzung.ort_name }} ({{ nutzung.ort_adresse }}) <br/>{% endif %}
+                                {% if nutzung.nutzung_beteiligte is not none %}Beteiligte: {{ nutzung.nutzung_beteiligte }}{% endif %}
+                            </small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed {% if gattungen|length < 1 %} text-secondary {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#gattungErgebnis" aria-expanded="false" aria-controls="gattungErgebnis">
+                    Gattung ({{ gattungen|length }})
+                </button>
+            </h2>
+            <div id="gattungErgebnis" class="accordion-collapse collapse" data-bs-parent="#suchergebnisse">
+                <div class="list-group p-3 bg-body-secondary">
+                    {% for gattung in gattungen %}
+                        <a href="{{ url_for('objekt.gattung', gattung_id=gattung.gattung_id) }}" class="list-group-item list-group-item-action mb-1" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ gattung.gattung_name }}</h5>
+                                <small>Gattung</small>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed {% if untergattungen|length < 1 %} text-secondary {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#untergattungErgebnis" aria-expanded="false" aria-controls="untergattungErgebnis">
+                    Untergattung ({{ untergattungen|length }})
+                </button>
+            </h2>
+            <div id="untergattungErgebnis" class="accordion-collapse collapse" data-bs-parent="#suchergebnisse">
+                <div class="list-group p-3 bg-body-secondary">
+                    {% for untergattung in untergattungen %}
+                        <a href="{{ url_for('objekt.untergattung', untergattung_id=untergattung.untergattung_id) }}" class="list-group-item list-group-item-action mb-1" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ untergattung.untergattung_name }}</h5>
+                                <small>Untergattung</small>
+                            </div>
+                            <p class="mb-1">Gattung: {{ untergattung.gattung_name }}</p>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed {% if detailgattungen|length < 1 %} text-secondary {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#detailgattungErgebnis" aria-expanded="false" aria-controls="detailgattungErgebnis">
+                    Detailgattung ({{ detailgattungen|length }})
+                </button>
+            </h2>
+            <div id="detailgattungErgebnis" class="accordion-collapse collapse" data-bs-parent="#suchergebnisse">
+                <div class="list-group p-3 bg-body-secondary">
+                    {% for detailgattung in detailgattungen %}
+                        <a href="{{ detailgattung['detailgattung_id'] }}" class="list-group-item list-group-item-action mb-1" aria-current="true">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ detailgattung.detailgattung_name }}</h5>
+                                <small>Detailgattung</small>
+                            </div>
+                        <p class="mb-1">Untergattung: {{ detailgattung.untergattung_name }}</p>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

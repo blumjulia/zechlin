@@ -1,0 +1,36 @@
+{% extends 'dokumentation/_schema.html' %}
+
+{% block schema_er_diagramm %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_diagramm_ausgabe.png') }}" alt="ER Diagramm">
+{% endblock %}
+
+{% block schema_datenmodell %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_datenmodell_ausgabe.png') }}" alt="ER Datenmodell">
+{% endblock %}
+
+{% block schema_datenbank %}
+    <table class="table table-striped w-100" id="data_table">
+        <thead>
+        <tr>
+            <th scope="col">ausgabe_id</th>
+            <th scope="col">ausgabe_typ</th>
+            <th scope="col">ausgabe_jahr</th>
+            <th scope="col">ausgabe_gnd</th>
+            <th scope="col">fk_verlag_id</th>
+            <th scope="col">fk_werk_id</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ausgabe in ausgaben %}
+            <tr>
+                <th scope="row">{{ ausgabe.ausgabe_id }}</th>
+                <td>{{ ausgabe.ausgabe_typ }}</td>
+                <td>{{ ausgabe.ausgabe_jahr }}</td>
+                <td>{{ ausgabe.ausgabe_gnd }}</td>
+                <td>{{ ausgabe.fk_verlag_id }}</td>
+                <td>{{ ausgabe.fk_werk_id }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

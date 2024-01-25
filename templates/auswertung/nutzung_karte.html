@@ -1,0 +1,546 @@
+{% extends 'main.html' %}
+
+<!-- Zusätzliche CSS Dateien für diese Seite -->
+{% block head_additional_css %}
+    <!-- Leaflet für Karte -->
+    <link href="{{ url_for('static', filename='plugins/leaflet/leaflet.css') }}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block body_content %}
+    <div class="px-4 py-4 text-center">
+        <h1 class="fw-bold">Auswertung: Werknutzungen</h1>
+        <h4 class="fw-semibold">kartographiert mit zeitlicher Relation</h4>
+    </div>
+
+
+
+    <div class="card text-center mb-4" id="such_auswahl">
+        <div class="card-header bg-body-secondary">
+            <h5 class="card-title text-center fw-semibold">Filterung</h5>
+            <span class="text-body-secondary text-start"><sup>1</sup>Werknutzungen mit unbekanntem Ort sind in dieser Auswertung ausgeblendet.</span>
+        </div>
+        <div class="card-body px-md-5 py-md-4 p-sm-1 bg-body-tertiary">
+            <form autocomplete="off">
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label class="form-label m-0 pe-3 col-12 col-sm-3 text-start ">Nutzungszeitpunkt:</label>
+                    <div class="col-12 col-sm-9 d-flex">
+                        <div class="col-2 d-flex justify-content-center flex-column">
+                            <select class="form-select text-center" id="nutzung_datum_operator">
+                                <option value="5">genau</option>
+                                <option value="6">vor</option>
+                                <option value="7">nach</option>
+                                <option value="8" selected>zwischen</option>
+                            </select>
+                        </div>
+                        <div class="col-10">
+                            <div class="input-group col-9 mx-2">
+                                <select class="form-control text-center" id="nutzung_datum_jahr_start">
+                                    <option selected value="{{ statistik.min_datum_jahr }}">{{ statistik.min_datum_jahr }}</option>
+                                    {% for x in range(statistik.min_datum_jahr + 1, statistik.max_datum_jahr + 1) %}
+                                        <option value="{{ x }}">{{ x }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select class="form-control text-center" id="nutzung_datum_jahr_ende">
+                                    {% for x in range(statistik.min_datum_jahr, statistik.max_datum_jahr) %}
+                                        <option value="{{ x }}">{{ '{:02.0f}'.format(x|float) }}</option>
+                                    {% endfor %}
+                                    <option selected value="{{ statistik.max_datum_jahr }}">{{ statistik.max_datum_jahr }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap align-items-center my-4">
+                    <label class="form-label m-0 pe-3 col-12 col-sm-3 text-start ">Jahres-Skala:</label>
+                    <div class="col-12 col-sm-9 text-center position-relative">
+                        <span class="position-absolute start-0 pt-2">{{ statistik.min_datum_jahr }}</span>
+                        <span class="position-absolute end-0 pt-2">{{ statistik.max_datum_jahr }}</span>
+                        <div id="skala_datum_linie"></div>
+                        <input type="range" id="skala_datum_jahr_start" step="1" value="{{ statistik.min_datum_jahr }}"
+                               min="{{ statistik.min_datum_jahr }}"
+                               max="{{ statistik.max_datum_jahr }}">
+                        <input type="range" id="skala_datum_jahr_ende" step="1" value="{{ statistik.max_datum_jahr }}"
+                               min="{{ statistik.min_datum_jahr }}"
+                               max="{{ statistik.max_datum_jahr }}">
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3 text-start">
+                        Anzahl der Nutzungen<sup>1</sup>:
+                    </div>
+                    <div class="col-9">
+                        <span id="anzahl_nutzungen_gefiltert">{{ nutzungen | length }}</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div id="map" style="height: 600px;"></div>
+    </div>
+
+    <div class="fw-semibold text-center mb-4" id="hinweis_markierung_klicken">Klicken Sie auf eine Orts-Markierung um zugehörige Informationen anzuzeigen.</div>
+
+    <div class="row" id="info_container" hidden>
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header position-relative">
+                    <h5 class="card-title text-center fw-semibold">Ausgewählter Ort</h5>
+                    <div class="position-absolute end-0 top-0 m-2">
+                        <a href="#" class="btn btn-sm btn-outline-primary" id="info_button_ort">Ort</a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary" id="info_button_osm">OpenStreetMap</a>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Name:
+                        </div>
+                        <div class="col-9">
+                            <span id="info_ort_name"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Adresse:
+                        </div>
+                        <div class="col-9">
+                            <span id="info_ort_adresse"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Latitude:
+                        </div>
+                        <div class="col-9">
+                            <span id="info_ort_latitude"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Longitude:
+                        </div>
+                        <div class="col-9">
+                            <span id="info_ort_longitude"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Persistente ID:
+                        </div>
+                        <div class="col-9">
+                            <span id="info_ort_persistente_id"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            Statische URL:
+                        </div>
+                        <div class="col-9">
+                            <span id="info_ort_permanente_url"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div>
+                    <h5 class="text-center fw-semibold">Werknutzungen an diesem Ort (<span id="anzahl_nutzungen_ort"></span>)</h5>
+                </div>
+                <div class="card-body p-3">
+                    <table class="table table-hover w-100" id="tabelle_nutzungen_ort">
+                        <thead>
+                        <tr>
+                            <th scope="col">Zeitpunkt</th>
+                            <th scope="col">Kontext</th>
+                            <th scope="col">Art</th>
+                            <th scope="col">Werktitel</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for nutzung in nutzungen.values() %}
+                            <tr class="py-2" style="cursor: pointer;" onclick="location.href='{{ url_for('nutzung.nutzung', nutzung_id=nutzung.nutzung_id) }}'" data-id-ort="{{ nutzung.ort_id }}">
+                                <td>
+                                    {% if nutzung.nutzung_datum_tag is not none %}
+                                        {% set tag = '{:02.0f}'.format(nutzung.nutzung_datum_tag|float) %}
+                                    {% else %}
+                                        {% set tag  = '[??]' %}
+                                    {% endif %}
+                                    {% if nutzung.nutzung_datum_monat is not none %}
+                                        {% set monat = '{:02.0f}'.format(nutzung.nutzung_datum_monat|float) %}
+                                    {% else %}
+                                        {% set monat = '[??]' %}
+                                    {% endif %}
+                                    {% if nutzung.nutzung_datum_jahr is not none %}
+                                        {% set jahr = nutzung.nutzung_datum_jahr %}
+                                    {% else %}
+                                        {% set jahr = '[????]' %}
+                                    {% endif %}
+
+                                    {{ '{}.{}.{}'.format(tag, monat, jahr) }}{% if nutzung.nutzung_zeit_stunde is not none %},{% endif %}
+                                    {% if nutzung.nutzung_zeit_stunde is not none and nutzung.nutzung_zeit_minute is not none %}<br/>{{ '{:02.0f}'.format(nutzung.nutzung_zeit_stunde|float) }}:{{ '{:02.0f}'.format(nutzung.nutzung_zeit_minute|float) }} Uhr{% endif %}
+                                </td>
+                                <td>
+                                    <span class="fw-semibold">{% if nutzung.nutzung_kontext is not none %}{{ nutzung.nutzung_kontext }}{% else %}<i>[unbekannt]</i>{% endif %}</span>
+                                </td>
+                                <td>{{ nutzung.nutzung_art }}</td>
+                                <td>
+                                    <span class="fw-semibold">{% if nutzung.werk_titel is not none %}{{ nutzung.werk_titel }}{% else %}<i>[unbekannt]</i>{% endif %}</span><br/>
+                                    {% if nutzung.werk_untertitel is not none %}{{ nutzung.werk_untertitel }}{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title text-center fw-semibold">Gefilterte Werknutzungen (<span id="anzahl_nutzungen_gefiltert_tabelle">{{ nutzungen | length }}</span>)<sup>2</sup></h5>
+                <div class="text-body-secondary text-center"><sup>2</sup> Werknutzungen mit unbekanntem Jahr werden ungefiltert vollständig aufgelistet.</div>
+            </div>
+            <div class="card-body p-3">
+                <table class="table table-hover w-100" id="tabelle_nutzungen_gefiltert">
+                    <thead>
+                    <tr>
+                        <th scope="col">Zeitpunkt</th>
+                        <th scope="col">Kontext</th>
+                        <th scope="col">Art</th>
+                        <th scope="col">Werktitel</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for nutzung in nutzungen.values() %}
+                        <tr class="py-2" style="cursor: pointer;" data-jahr="{{ nutzung.nutzung_datum_jahr }}" onclick="location.href='{{ url_for('nutzung.nutzung', nutzung_id=nutzung.nutzung_id) }}'">
+                            <td>
+                                {% if nutzung.nutzung_datum_tag is not none %}
+                                    {% set tag = '{:02.0f}'.format(nutzung.nutzung_datum_tag|float) %}
+                                {% else %}
+                                    {% set tag  = '[??]' %}
+                                {% endif %}
+                                {% if nutzung.nutzung_datum_monat is not none %}
+                                    {% set monat = '{:02.0f}'.format(nutzung.nutzung_datum_monat|float) %}
+                                {% else %}
+                                    {% set monat = '[??]' %}
+                                {% endif %}
+                                {% if nutzung.nutzung_datum_jahr is not none %}
+                                    {% set jahr = nutzung.nutzung_datum_jahr %}
+                                {% else %}
+                                    {% set jahr = '[????]' %}
+                                {% endif %}
+
+                                {{ '{}.{}.{}'.format(tag, monat, jahr) }}{% if nutzung.nutzung_zeit_stunde is not none %},{% endif %}
+                                {% if nutzung.nutzung_zeit_stunde is not none and nutzung.nutzung_zeit_minute is not none %}<br/>{{ '{:02.0f}'.format(nutzung.nutzung_zeit_stunde|float) }}:{{ '{:02.0f}'.format(nutzung.nutzung_zeit_minute|float) }} Uhr{% endif %}
+                            </td>
+                            <td>
+                                <span class="fw-semibold">{% if nutzung.nutzung_kontext is not none %}{{ nutzung.nutzung_kontext }}{% else %}<i>[unbekannt]</i>{% endif %}</span>
+                            </td>
+                            <td>{{ nutzung.nutzung_art }}</td>
+                            <td>
+                                <span class="fw-semibold">{% if nutzung.werk_titel is not none %}{{ nutzung.werk_titel }}{% else %}<i>[unbekannt]</i>{% endif %}</span><br/>
+                                {% if nutzung.werk_untertitel is not none %}{{ nutzung.werk_untertitel }}{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <!-- Einbinden der zusätzlichen JavaScript-Dateien des Plugins ChartJS zum Anzeigen der Diagramme -->
+    <script src="{{ url_for('static', filename='plugins/DataTables/datatables.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/leaflet/leaflet.js') }}"></script>
+    <!-- Definition der Konstanten -->
+    <script>
+        const select_datum_operator = document.querySelector('#nutzung_datum_operator');
+        const select_datum_jahr_start = document.querySelector('#nutzung_datum_jahr_start');
+        const select_datum_jahr_ende = document.querySelector('#nutzung_datum_jahr_ende');
+
+        const skala_datum_linie = document.querySelector('#skala_datum_linie');
+        const skala_datum_jahr_start = document.querySelector('#skala_datum_jahr_start');
+        const skala_datum_jahr_ende = document.querySelector('#skala_datum_jahr_ende');
+
+        const anzahl_nutzungen_gefiltert = document.querySelector('#anzahl_nutzungen_gefiltert');
+        const anzahl_nutzungen_gefiltert_tabelle = document.querySelector('#anzahl_nutzungen_gefiltert_tabelle');
+        const anzahl_nutzungen_ort = document.querySelector('#anzahl_nutzungen_ort');
+        const info_container = document.querySelector('#info_container');
+        const info_button_ort = document.querySelector('#info_button_ort');
+        const info_button_osm = document.querySelector('#info_button_osm');
+
+        const tabelle_nutzungen_gefiltert = document.querySelector('#tabelle_nutzungen_gefiltert');
+        const tabelle_nutzungen_ort = document.querySelector('#tabelle_nutzungen_ort');
+
+        const info_ort_name = document.querySelector('#info_ort_name');
+        const info_ort_adresse = document.querySelector('#info_ort_adresse');
+        const info_ort_latitude = document.querySelector('#info_ort_latitude');
+        const info_ort_longitude = document.querySelector('#info_ort_longitude');
+        const info_ort_persistente_id = document.querySelector('#info_ort_persistente_id');
+        const info_ort_permanente_url = document.querySelector('#info_ort_permanente_url');
+
+        const min_datum_jahr = parseInt("{{ statistik.min_datum_jahr }}");
+        const max_datum_jahr = parseInt("{{ statistik.max_datum_jahr }}");
+
+        const nutzungen = {{ nutzungen | tojson }};
+        const orte = {{ orte | tojson }};
+        const feature_groups = [];
+
+        const url_ort = "{{ url_for('objekt.ort', ort_id='') }}";
+        const url_osm = "https://openstreetmap.org/#map=18/";
+        const url_nutzung = "{{ url_for('nutzung.nutzung', nutzung_id='') }}";
+        const url_werk = "{{ url_for('werk.werk', werk_id='') }}"
+
+        const persistente_id_prefix_ort = "{{ config.pid.prefix + config.pid.separator + config.pid.objekt.ort + config.pid.separator }}";
+        const permanente_url_prefix_ort = "{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.ort + config.pid.separator, _external=True ) }}";
+
+        const event_change = new Event('change');
+        const event_input = new Event('input');
+    </script>
+    <!-- Definition der Funktionen -->
+    <script>
+        // Funktionen
+
+        // Funktion zum Ein- und Ausblenden der Ort-Marker
+        function marker_anpassen(start, ende) {
+            zaehler_nutzungen = 0;
+
+            // FeatureGroup (enthält die Marker) durchgehen und prüfen ob sie noch angezeigt werden sollen
+            Object.entries(feature_groups).forEach(([jahr, feature_group]) => {
+                if (parseInt(jahr) < parseInt(start) || parseInt(jahr) > parseInt(ende)) {
+                    feature_group.removeFrom(map);
+                } else {
+                    zaehler_nutzungen += feature_group.getLayers().length;
+                    feature_group.addTo(map);
+                }
+            });
+
+            anzahl_nutzungen_gefiltert.innerHTML = zaehler_nutzungen;
+            anzahl_nutzungen_gefiltert_tabelle.innerHTML = zaehler_nutzungen;
+        }
+
+        // Funktion zum Anpassen der Skala-Linie (damit nicht ausgewählter Bereich grau ist)
+        function skala_linien_farbe_anpassen(start, ende) {
+            // Farbe Zwischenbereich
+            let prozentStart = (start - min_datum_jahr) / (max_datum_jahr - min_datum_jahr) * 100;
+            let prozentEnde = (ende - min_datum_jahr) / (max_datum_jahr - min_datum_jahr) * 100;
+            skala_datum_linie.style.background = 'linear-gradient(to right, #6c757d ' + prozentStart + '%, #0d6efd ' + prozentStart + '%, #0d6efd ' + prozentEnde + '%, #6c757d ' + prozentEnde + '%)';
+        }
+
+        // Funktion zum Anpassen der Select-Optionen
+        function select_optionen_anpassen(start, ende) {
+            options_select_datum_jahr_start = select_datum_jahr_start.querySelectorAll('option');
+            options_select_datum_jahr_ende = select_datum_jahr_ende.querySelectorAll('option');
+
+            // Dropdown anpassen, damit nicht Startjahr später als Endjahr ausgewählt werden kann
+            options_select_datum_jahr_start.forEach((option) => {
+                if (parseInt(option.value) >= parseInt(ende)) {
+                    option.innerHTML = option.value;
+                    option.setAttribute('hidden', 'true');
+                } else {
+                    option.innerHTML = option.value;
+                    option.removeAttribute('hidden');
+                }
+            });
+
+            // Dropdown anpassen, damit nicht Endjahr früher als Startjahr ausgewählt werden kann
+            options_select_datum_jahr_ende.forEach((option) => {
+                if (parseInt(option.value) <= parseInt(start)) {
+                    option.innerHTML = option.value;
+                    option.setAttribute('hidden', 'true');
+                } else {
+                    option.innerHTML = option.value;
+                    option.removeAttribute('hidden');
+                }
+            });
+        }
+
+        // Funktion zum ausblenden von Zeilen in der Tabelle
+        function tabelle_anpassen(start, ende) {
+            Object.values(tabelle_nutzungen_gefiltert.rows).forEach((row) => {
+                if (parseInt(row.getAttribute('data-jahr')) < start || parseInt(row.getAttribute('data-jahr')) > ende) {
+                    row.setAttribute('hidden', 'true');
+                } else {
+                    row.removeAttribute('hidden');
+                }
+            });
+        }
+
+        // Funktion zum befüllen der Informationen beim Klick auf einen Marker
+        function ort_infos_anzeigen(nutzung_id, ort_id) {
+            // Bereich einblenden und Verlinkung hinterlegen
+            info_container.removeAttribute('hidden');
+            info_button_ort.setAttribute('href', url_ort + ort_id);
+            info_button_osm.setAttribute('href', url_osm + orte[ort_id].ort_latitude + '/' + orte[ort_id].ort_longitude);
+
+            info_ort_name.innerHTML = orte[ort_id].ort_name;
+            info_ort_adresse.innerHTML = orte[ort_id].ort_adresse;
+            info_ort_latitude.innerHTML = orte[ort_id].ort_latitude;
+            info_ort_longitude.innerHTML = orte[ort_id].ort_longitude;
+
+            permanente_url = document.createElement('a');
+            permanente_url.setAttribute('href', permanente_url_prefix_ort + ort_id);
+            permanente_url.innerHTML = permanente_url_prefix_ort + ort_id;
+            permanente_url.classList.add('link-secondary');
+
+            info_ort_persistente_id.innerHTML = persistente_id_prefix_ort + ort_id
+            info_ort_permanente_url.innerHTML = '';
+            info_ort_permanente_url.appendChild(permanente_url);
+
+            // Wernutzungen-Tabelle anzeigen
+            anzahl_nutzungen_ort.innerHTML = orte[ort_id].nutzungen.length;
+            tabelle_reihe_nutzung_ort = document.querySelectorAll('[data-id-ort]');
+            tabelle_reihe_nutzung_ort.forEach((tabelle_reihe_nutzung) => {
+                if (parseInt(tabelle_reihe_nutzung.getAttribute('data-id-ort')) !== ort_id) {
+                    tabelle_reihe_nutzung.setAttribute('hidden', 'true');
+                } else {
+                    tabelle_reihe_nutzung.removeAttribute('hidden');
+                }
+            });
+
+
+        }
+    </script>
+    <!-- Startablauf nach dem Laden der Seite -->
+    <script>
+        // Karte initiieren
+        let map = L.map('map')
+            .setView([30, 0], 2)
+
+        // Kartenaussehen bestimmen
+        let open_street_map = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        });
+        open_street_map.addTo(map)
+
+        // Befüllen der Karte mit Markierungen und FeatureGroups (pro Jahr eine FeatureGroup, damit man sie leichter aus- und einblenden kann)
+        Object.entries(nutzungen).forEach(([nutzung_id, nutzung]) => {
+            if (nutzung.ort_latitude === null || nutzung.ort_latitude === 0 || nutzung.nutzung_datum_jahr === null) {
+                return;
+            }
+
+            if (feature_groups[nutzung.nutzung_datum_jahr] === undefined) {
+                feature_groups[nutzung.nutzung_datum_jahr] = L.featureGroup();
+            }
+
+            marker = L.marker(L.latLng([nutzung.ort_latitude, nutzung.ort_longitude]));
+
+            marker.addEventListener('click', (event) => {
+                ort_infos_anzeigen(nutzung_id, nutzung.ort_id);
+            });
+
+            feature_groups[nutzung.nutzung_datum_jahr].addLayer(marker);
+        });
+
+        feature_groups.forEach((featureGroup) => {
+            featureGroup.addTo(map);
+        })
+    </script>
+    <!-- Definition Event-Listener der Select-Elemente um Benutzerinteraktion zu ermöglichen -->
+    <script>
+        // Wenn 'zwischen' ausgewählt, dann Ende-Datum anzeigen, ansonsten ausblenden
+        select_datum_operator.addEventListener('change', (event) => {
+            switch (select_datum_operator.value) {
+                case '5':
+                    select_datum_jahr_ende.setAttribute('hidden', 'true');
+                    skala_datum_jahr_ende.setAttribute('hidden', 'true');
+                    skala_linien_farbe_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_start.value);
+                    marker_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_start.value);
+                    tabelle_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_start.value);
+                    break;
+                case '6':
+                    select_datum_jahr_ende.setAttribute('hidden', 'true');
+                    skala_datum_jahr_ende.setAttribute('hidden', 'true');
+                    skala_linien_farbe_anpassen(min_datum_jahr, skala_datum_jahr_start.value);
+                    marker_anpassen(min_datum_jahr, skala_datum_jahr_start.value);
+                    tabelle_anpassen(min_datum_jahr, skala_datum_jahr_start.value);
+                    break;
+                case '7':
+                    select_datum_jahr_ende.setAttribute('hidden', 'true');
+                    skala_datum_jahr_ende.setAttribute('hidden', 'true');
+                    skala_linien_farbe_anpassen(skala_datum_jahr_start.value, max_datum_jahr);
+                    marker_anpassen(skala_datum_jahr_start.value, max_datum_jahr);
+                    tabelle_anpassen(skala_datum_jahr_start.value, max_datum_jahr);
+                    break;
+                case '8':
+                    select_datum_jahr_ende.removeAttribute('hidden');
+                    skala_datum_jahr_ende.removeAttribute('hidden');
+                    skala_linien_farbe_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+                    marker_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_start.value);
+                    tabelle_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_start.value);
+                    break;
+            }
+        });
+
+        // Manuelle Eingabe des Startjahres über Dropdown
+        select_datum_jahr_start.addEventListener('change', (event) => {
+            skala_datum_jahr_start.value = event.target.value;
+            skala_datum_jahr_start.dispatchEvent(event_input);
+        });
+
+        // Manuelle Eingabe des Endjahres über Dropdown
+        select_datum_jahr_ende.addEventListener('change', (event) => {
+            skala_datum_jahr_ende.value = event.target.value;
+            skala_datum_jahr_ende.dispatchEvent(event_input);
+        });
+    </script>
+    <!-- Definition Event-Listener der Skala um Benutzerinteraktion zu ermöglichen -->
+    <script>
+        // Verändern des Startwertes der Skala
+        skala_datum_jahr_start.addEventListener('input', (event) => {
+            switch (select_datum_operator.value) {
+                case '5':
+                    select_datum_jahr_start.value = skala_datum_jahr_start.value;
+                    marker_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_start.value);
+                    skala_linien_farbe_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_start.value);
+                    tabelle_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_start.value);
+                    break;
+                case '6':
+                    select_datum_jahr_start.value = skala_datum_jahr_start.value;
+                    marker_anpassen(min_datum_jahr, skala_datum_jahr_start.value);
+                    skala_linien_farbe_anpassen(min_datum_jahr, skala_datum_jahr_start.value);
+                    tabelle_anpassen(min_datum_jahr, skala_datum_jahr_start.value);
+                    break;
+                case '7':
+                    select_datum_jahr_start.value = skala_datum_jahr_start.value;
+                    marker_anpassen(skala_datum_jahr_start.value, max_datum_jahr);
+                    skala_linien_farbe_anpassen(skala_datum_jahr_start.value, max_datum_jahr);
+                    tabelle_anpassen(skala_datum_jahr_start.value, max_datum_jahr);
+                    break;
+                case '8':
+                    // Verhindert, dass Startjahr größer/gleich groß wie das Endjahr ist
+                    if (skala_datum_jahr_start.value < skala_datum_jahr_ende.value) {
+                        select_datum_jahr_start.value = skala_datum_jahr_start.value;
+                        marker_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+                        skala_linien_farbe_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+                        tabelle_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+                    } else {
+                        skala_datum_jahr_start.value = select_datum_jahr_start.value;
+                    }
+
+                    select_optionen_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+                    break;
+            }
+        });
+
+        // Verändern des Endwertes der Skala
+        skala_datum_jahr_ende.addEventListener('input', (event) => {
+            // Verhindert, dass Startjahr größer/gleich groß wie das Endjahr ist
+            if (skala_datum_jahr_start.value < skala_datum_jahr_ende.value) {
+                select_datum_jahr_ende.value = skala_datum_jahr_ende.value;
+                marker_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+                skala_linien_farbe_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+                tabelle_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+            } else {
+                skala_datum_jahr_ende.value = select_datum_jahr_ende.value;
+            }
+
+            select_optionen_anpassen(skala_datum_jahr_start.value, skala_datum_jahr_ende.value);
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'main.html' %}
+
+{% block body_content %}
+    <h1>Struktur der Datenbank</h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index.index') }}">Startseite</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Datenbank-Struktur</li>
+        </ol>
+    </nav>
+
+    <h2 class="text-center mt-3 mb-4">ER Diagramm:</h2>
+    <img class="mw-100" src="{{ url_for('static', filename='media/komplett_er_diagramm.png') }}" alt="ER Diagramm">
+
+    <hr>
+
+    <h2 class="text-center mt-3 mb-4">ER Datenmodell:</h2>
+    <img class="mw-100" src="{{ url_for('static', filename='media/komplett_er_datenmodell.png') }}" alt="ER Datenmodell">
+{% endblock %}

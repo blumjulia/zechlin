@@ -1,0 +1,238 @@
+{% extends 'main.html' %}
+
+<!-- Zusätzliche CSS Dateien für diese Seite -->
+{% block head_additional_css %}
+    <!-- Leaflet für Karte -->
+    <link href="{{ url_for('static', filename='plugins/leaflet/leaflet.css') }}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block body_content %}
+    <div class="card my-4">
+        <div class="card-body bg-body-secondary text-center p-4">
+            <h2>{{ ort.ort_name }}</h2>
+            <p class="fw-semibold">{{ ort.ort_adresse }}</p>
+        </div>
+    </div>
+
+    <div class="accordion mb-5">
+        <div class="accordion-item border-0">
+            <div class="accordion-header">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_gattung_details" aria-expanded="true" aria-controls="bereich_gattung_details">
+                    <h4>
+                        <i class="fa-solid fa-info me-1"></i>
+                        Details
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_gattung_details">
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Name:
+                    </div>
+                    <div class="col-9">
+                        {{ ort.ort_name }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Adresse:
+                    </div>
+                    <div class="col-9">
+                        {{ ort.ort_adresse }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Latitude:
+                    </div>
+                    <div class="col-9">
+                        {{ ort.ort_latitude }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Longitude:
+                    </div>
+                    <div class="col-9">
+                        {{ ort.ort_longitude }}
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Persistente ID:
+                    </div>
+                    <div class="col-9">
+                        {{ config.pid.prefix + config.pid.separator + config.pid.objekt.ort + config.pid.separator + ort.ort_id|string }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Statische URL:
+                    </div>
+                    <div class="col-9">
+                        <a class="link-secondary"
+                           href="{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.ort + config.pid.separator + ort.ort_id|string, _external='true') }}">{{ url_for('index.pid', pid=config.pid.prefix + config.pid.separator + config.pid.objekt.ort + config.pid.separator + ort.ort_id|string, _external='true') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item border-0">
+            <div class="accordion-header">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_gattung_untergattungen" aria-expanded="true" aria-controls="bereich_gattung_untergattungen">
+                    <h4>
+                        <i class="fa-solid fa-map me-1"></i>
+                        Karte
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                        <a href="https://www.openstreetmap.org/#map=18/{{ ort.ort_latitude }}/{{ ort.ort_longitude }}" class="btn btn-sm btn-outline-secondary icon-btn">OpenStreetMap</a>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-collapse collapse show bg-body-tertiary" id="bereich_gattung_untergattungen">
+                <div id="map" style="height: 400px;"></div>
+            </div>
+        </div>
+        <div class="accordion-item border-0">
+            <div class="accordion-header">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_gattung_werke" aria-expanded="true" aria-controls="bereich_gattung_werke">
+                    <h4>
+                        <i class="fa-solid fa-pencil me-1"></i>
+                        Nutzungen ({{ nutzungen | length }})
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2">
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_gattung_werke">
+                <table class="table table-hover w-100" id="data_table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Zeitpunkt</th>
+                        <th scope="col">Kontext</th>
+                        <th scope="col">Art</th>
+                        <th scope="col">Werktitel</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for nutzung in nutzungen %}
+                        <tr class="py-2" onclick="location.href='{{ url_for('nutzung.nutzung', nutzung_id=nutzung.nutzung_id) }}'">
+                            <td>
+                                {% if nutzung.nutzung_datum_tag is not none %}
+                                    {% set tag = '{:02.0f}'.format(nutzung.nutzung_datum_tag|float) %}
+                                {% else %}
+                                    {% set tag  = '[??]' %}
+                                {% endif %}
+                                {% if nutzung.nutzung_datum_monat is not none %}
+                                    {% set monat = '{:02.0f}'.format(nutzung.nutzung_datum_monat|float) %}
+                                {% else %}
+                                    {% set monat = '[??]' %}
+                                {% endif %}
+                                {% if nutzung.nutzung_datum_jahr is not none %}
+                                    {% set jahr = nutzung.nutzung_datum_jahr %}
+                                {% else %}
+                                    {% set jahr = '[????]' %}
+                                {% endif %}
+
+                                {{ '{}.{}.{}'.format(tag, monat, jahr) }}{% if nutzung.nutzung_zeit_stunde is not none %},{% endif %}
+                                {% if nutzung.nutzung_zeit_stunde is not none and nutzung.nutzung_zeit_minute is not none %}<br/>{{ '{:02.0f}'.format(nutzung.nutzung_zeit_stunde|float) }}:{{ '{:02.0f}'.format(nutzung.nutzung_zeit_minute|float) }} Uhr{% endif %}
+                            </td>
+                            <td>
+                                <span class="fw-semibold">{{ nutzung.nutzung_kontext }}</span>
+                            </td>
+                            <td>{{ nutzung.nutzung_art }}</td>
+                            <td>
+                                <span class="fw-semibold">{{ nutzung.werk_titel }}</span><br/>
+                                {% if nutzung.werk_untertitel %}{{ nutzung.werk_untertitel }}{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="accordion-item border-0">
+            <div class="accordion-header ">
+                <div class="accordion-button bg-body position-relative border-0" data-bs-toggle="collapse" data-bs-target="#bereich_werk_export" aria-expanded="true" aria-controls="bereich_werk_export">
+                    <h4>
+                        <i class="fa-solid fa-file-export me-1"></i>
+                        Daten
+                    </h4>
+                    <div class="position-absolute end-0 pe-5 me-2 z-max">
+                        <a class="btn btn-sm btn-outline-secondary" href="https://schema.org/Place">JSON-LD Schema</a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 accordion-collapse collapse show bg-body-tertiary" id="bereich_werk_export">
+                <div class="row mb-2">
+                    <div class="col-3">
+                        Exportformate:
+                    </div>
+                    <div class="col-9">
+                        <a class="btn btn-sm btn-outline-primary me-2" href="{{ url_for('export.json_ld_ort', ort_id=ort.ort_id) }}">JSON-LD</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script src="{{ url_for('static', filename='plugins/DataTables/datatables.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/leaflet/leaflet.js') }}"></script>
+    <script>
+        // Aktivieren der Tooltips, die auf der Seite verwendet werden
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+        const latitude = {{ ort.ort_latitude }};
+        const longitude = {{ ort.ort_longitude }};
+
+        // Initiieren der Karte
+        let map = L.map('map')
+            .setView([latitude, longitude], 15)
+
+        // Kartenaussehen bestimmen
+        let openStreetMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        });
+        openStreetMap.addTo(map)
+
+        // Marker setzen
+        let standort = L.marker()
+            .setLatLng([latitude, longitude])
+            .addTo(map)
+
+        // Tooltip setzen
+        let tooltip = L.tooltip()
+            .setLatLng([latitude, longitude])
+            .setContent("{{ ort.ort_name }}")
+            .addTo(map)
+
+        // Verhindert, dass beim Klicken der Buttons das Accordion aktiv wird, anstatt die Webseite aufzurufen
+        const link_buttons = document.querySelectorAll('a.btn');
+        link_buttons.forEach((item) => {
+            item.addEventListener('click', (event) => {
+                window.location = event.target.getAttribute('href');
+                return false;
+            });
+        });
+
+        // Initiieren der Datentabelle (Plugin: DataTable)
+        const table = $('#data_table').DataTable({
+            "language": {
+                url: "{{ url_for('static', filename='plugins/DataTables/de-DE.json') }}"
+            },
+            "scrollX": true,
+            "autoWidth": true
+        });
+    </script>
+{% endblock %}

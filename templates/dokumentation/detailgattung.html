@@ -1,0 +1,31 @@
+{% extends 'dokumentation/_schema.html' %}
+
+{% block schema_er_diagramm %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_diagramm_detailgattung.png') }}" alt="ER Diagramm">
+{% endblock %}
+
+{% block schema_datenmodell %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_datenmodell_detailgattung.png') }}" alt="ER Datenmodell">
+{% endblock %}
+
+
+{% block schema_datenbank %}
+    <table class="table table-striped w-100" id="data_table">
+        <thead>
+        <tr>
+            <th scope="col">detailgattung_id</th>
+            <th scope="col">detailgattung_name</th>
+            <th scope="col">fk_untergattung_id</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for detailgattung in detailgattungen %}
+            <tr>
+                <th scope="row">{{ detailgattung.detailgattung_id }}</th>
+                <td>{{ detailgattung.detailgattung_name }}</td>
+                <td>{{ detailgattung.fk_untergattung_id }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

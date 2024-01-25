@@ -1,0 +1,151 @@
+{% extends 'main.html' %}
+
+<!-- Zusätzliche CSS Dateien für diese Seite -->
+{% block head_additional_css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='plugins/DataTables/datatables.css') }}">
+{% endblock %}
+
+<!-- Inhalte der Seite -->
+{% block body_content %}
+    <!-- Titel der Seite -->
+    <div class="px-4 py-4 text-center">
+        <h1 class="fw-bold">Auswertung: Verlag</h1>
+    </div>
+
+    <!-- Diagramm: Werknutzungen pro Jahr -->
+    <div class="card">
+        <div class="card-header p-3">
+            <h4 class="card-titel text-center fw-semibold m-0">Verlegte Werke pro Verlag</h4>
+            <p class="card-titel text-center text-secondary m-0">hierbei werden ausschließlich Werke der Werkart "Komposition" betrachtet</p>
+        </div>
+        <div class="card-body">
+            <canvas id="diagramm_nutzungen">
+                <p>Leider kann das angefragte Diagramm aufgrund eines Fehlers nicht angezeigt werden.</p>
+            </canvas>
+            <!-- Ausgeblendete Daten zum Diagramm -->
+            <div class="table-responsive m-2">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">DNB</th>
+                        <th scope="col">Werke</th>
+                        <th scope="col" class="text-center">Visibel</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for verlag_id, verlag in daten_verlage.items() %}
+                        <tr>
+                            <td>{% if verlag_id != 0 %}<a class="btn btn-sm btn-outline-primary" href="{{ url_for('objekt.verlag', verlag_id=verlag_id) }}">Verlag</a>{% endif %}</td>
+                            <td>{{ verlag_id }}</td>
+                            <td>{{ verlag.verlag_name }}</td>
+                            <td>{{ verlag.verlag_dnb }}</td>
+                            <td>{{ verlag.werke | length }}</td>
+                            <td class="text-center">
+                                <input class="form-check-input" type="checkbox" value="{{ verlag_id }}" id="checkbox_verlag_visibel" data-verlag-name="{{ verlag.verlag_name }}" checked>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <!-- Einbinden der zusätzlichen JavaScript-Dateien des Plugins ChartJS zum Anzeigen der Diagramme -->
+    <script src="{{ url_for('static', filename='plugins/Chartjs/dist/chart.umd.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='plugins/Chartjs/plugins/chartjs-plugin-datalabels.js') }}"></script>
+    <script>
+        // Ändern der Standardwerte, damit die Punkte besser angeklickt werden können
+        Chart.defaults.elements.point.hitRadius = 10;
+        Chart.defaults.elements.point.hoverRadius = 10;
+    </script>
+    <script>
+        // Konstante mit den Daten aus der Datenbank
+        const daten_verlag_auswertung = {{ daten_verlage | tojson }};
+
+        // Initiieren der späteren verwendeten Dictionaries
+        anzahl_werke_bei_verlag = {}
+
+        // Umwandlung des bisherigen Dictionaries, sodass das Dictionary nun { 'Jahr': 'Anzahl' } entspricht
+        Object.values(daten_verlag_auswertung).forEach((verlag) => {
+            anzahl_werke_bei_verlag[verlag.verlag_name] = verlag.werke.length;
+        });
+
+        // Aktivieren des Beschriftungs-Plugins von ChartJS
+        Chart.register(ChartDataLabels);
+
+        // Initiieren eines neuen Diagramms
+        const chart_verlage_werke = new Chart(
+            document.querySelector('#diagramm_nutzungen'),
+            {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(anzahl_werke_bei_verlag),
+                    datasets: [
+                        {
+                            label: 'Verlegte Werke',
+                            data: Object.values(anzahl_werke_bei_verlag),
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'end'
+                            },
+
+                        }
+
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        datalabels: {
+                            borderRadius: 4,
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: Math.round,
+                            padding: 6,
+                            display: (context) => {
+                                return context.dataset.data[context.dataIndex] > 0;
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            }
+        );
+    </script>
+    <script>
+        // Ermöglicht aus- und einblenden der Balken bei Deaktivieren der Checkbox
+        const checkboxes_verlag_visibel = document.querySelectorAll('[data-verlag-name]');
+
+        checkboxes_verlag_visibel.forEach((checkbox) => {
+            checkbox.addEventListener('change', (event) => {
+                verlag_name = event.target.getAttribute('data-verlag-name');
+
+                if (event.target.checked) {
+                    chart_verlage_werke.data.labels.push(verlag_name);
+                    chart_verlage_werke.data.datasets[0].data.push(anzahl_werke_bei_verlag[verlag_name]);
+                } else {
+                    // Index des relevanten Labels finden
+                    label_index = chart_verlage_werke.data.labels.indexOf(verlag_name);
+
+                    // Label entfernen
+                    chart_verlage_werke.data.labels.splice(label_index, 1);
+                    chart_verlage_werke.data.datasets[0].data.splice(label_index, 1);
+
+                }
+                chart_verlage_werke.update();
+            });
+        })
+
+    </script>
+{% endblock %}

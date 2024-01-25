@@ -1,0 +1,34 @@
+{% extends 'dokumentation/_schema.html' %}
+
+{% block schema_er_diagramm %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_diagramm_quelle-nutzung.png') }}" alt="ER Diagramm">
+{% endblock %}
+
+{% block schema_datenmodell %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_datenmodell_quelle-nutzung.png') }}" alt="ER Datenmodell">
+{% endblock %}
+
+{% block schema_datenbank %}
+<table class="table table-striped w-100" id="data_table">
+            <thead>
+            <tr>
+                <th scope="col">quelle_nutzung_id</th>
+                <th scope="col">quelle_nutzung_name</th>
+                <th scope="col">quelle_nutzung_datum_aufgerufen</th>
+                <th scope="col">quelle_nutzung_hyperlink</th>
+                <th scope="col">fk_nutzung_id</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for quelle in quellen %}
+                <tr>
+                    <th scope="row">{{ quelle.quelle_nutzung_id }}</th>
+                    <td>{{ quelle.quelle_nutzung_name }}</td>
+                    <td>{{ quelle.quelle_nutzung_datum_aufgerufen }}</td>
+                    <td>{{ quelle.quelle_nutzung_hyperlink }}</td>
+                    <td>{{ quelle.fk_nutzung_id }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

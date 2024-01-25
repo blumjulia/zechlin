@@ -1,0 +1,215 @@
+{% extends 'main.html' %}
+
+{% block body_content %}
+    <div class="px-4 py-4 text-center">
+        <h1 class="fw-bold">Digitales Nutzungsverzeichnis</h1>
+        <h4 class="fw-semibold">Nutzungen der Werke von Ruth Zechlin</h4>
+    </div>
+
+
+    <div class="card text-center mb-4" id="such_auswahl">
+        <div class="card-header bg-body-secondary">
+            <h5 class="card-title text-center fw-semibold">Erweiterte Suche</h5>
+        </div>
+        <div class="card-body px-md-5 py-md-4 p-sm-1 bg-body-tertiary">
+            <form id="werkForm" method="GET" action="{{ url_for('suche.ergebnis_nutzungssuche') }}" autocomplete="off">
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="werktitel" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Werktitel:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="werktitel_operator">
+                                <option value="1">entspricht</option>
+                                <option value="2">enthält</option>
+                                <option value="3">beginnt</option>
+                                <option value="4">endet</option>
+                            </select>
+                            <select class="form-select text-center" name="werktitel_nicht">
+                                <option value="0"></option>
+                                <option value="10">nicht</option>
+                            </select>
+                            <input type="text" class="form-control w-auto" list="werke" id="werktitel" name="werktitel">
+                            <datalist id="werke">
+                                {% for werk in werke %}
+                                    <option value="{{ werk.werk_titel }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="kontext" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Nutzungskontext:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="kontext_operator">
+                                <option value="1">entspricht</option>
+                                <option value="2">enthält</option>
+                                <option value="3">beginnt</option>
+                                <option value="4">endet</option>
+                            </select>
+                            <select class="form-select text-center" name="kontext_nicht">
+                                <option value="0"></option>
+                                <option value="10">nicht</option>
+                            </select>
+                            <input type="text" class="form-control w-auto" id="kontext" name="kontext">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="art" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Nutzungsart:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select" name="art">
+                                <option value="">Alle</option>
+                                {% for nutzungsart in nutzungsarten %}
+                                    <option value="{{ nutzungsart.nutzung_art }}">{{ nutzungsart.nutzung_art }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="beteiligte" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Beteiligte:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="beteiligte_operator">
+                                <option value="1">entspricht</option>
+                                <option value="2">enthält</option>
+                                <option value="3">beginnt</option>
+                                <option value="4">endet</option>
+                            </select>
+                            <select class="form-select text-center" name="beteiligte_nicht">
+                                <option value="0"></option>
+                                <option value="10">nicht</option>
+                            </select>
+                            <input type="text" class="form-control w-auto" id="beteiligte" name="beteiligte">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Nutzungszeitpunkt:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="nutzung_datum_operator">
+                                <option value="5">genau</option>
+                                <option value="6">vor</option>
+                                <option value="7">nach</option>
+                            </select>
+                            <select type="number" class="form-control text-center" name="nutzung_datum_tag">
+                                <option selected value="0">Tag</option>
+                                {% for x in range(1,32) %}
+                                    <option value="{{ x }}">{{ '{:02.0f}'.format(x|float) }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="input-group-text">.</span>
+                            <select type="number" class="form-control text-center" name="nutzung_datum_monat">
+                                <option selected value="0">Monat</option>
+                                {% for x in range(1,13) %}
+                                    <option value="{{ x }}">{{ '{:02.0f}'.format(x|float) }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="input-group-text">.</span>
+                            <select type="number" class="form-control text-center" name="nutzung_datum_jahr">
+                                <option selected value="0">Jahr</option>
+                                {% for x in range(nutzung_jahr_min_max.min_jahr, nutzung_jahr_min_max.max_jahr) %}
+                                    <option value="{{ x }}">{{ x }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="spieldauer" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Spieldauer:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select text-center" name="spieldauer_operator">
+                                <option value="5">genau</option>
+                                <option value="6">kürzer als</option>
+                                <option value="7">länger als</option>
+                            </select>
+                            <input type="number" class="form-control w-auto" id="spieldauer" name="spieldauer">
+                            <select class="form-select text-center" name="spieldauer_einheit">
+                                <option value="1">Sek.</option>
+                                <option value="60">Min.</option>
+                                <option value="3600">Std.</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <label for="ort" class="form-label m-0 pe-3 col-12 col-sm-3 text-start">Ort:</label>
+                    <div class="col-12 col-sm-9">
+                        <div class="input-group">
+                            <select class="form-select" name="ort">
+                                <option value="0">Alle</option>
+                                {% for ort in orte %}
+                                    <option value="{{ ort.ort_id }}">{{ ort.ort_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3 w-100">Erweiterte Suche starten</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header position-relative">
+                    <h5 class="card-title text-center fw-semibold">Neuste Nutzungen</h5>
+                    <span class="btn btn-sm btn-outline-primary position-absolute end-0 top-0 m-2 disabled">Nutzung</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group">
+                        {% for nutzung in letzte_nutzungen %}
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between ps-2" href="{{ url_for('nutzung.nutzung', nutzung_id=nutzung.nutzung_id) }}">
+                                <p class="m-0">{{ nutzung.werk_titel }}</p>
+                                <span>{{ '{:02.0f}.{:02.0f}.{}'.format(nutzung.nutzung_datum_tag|float, nutzung.nutzung_datum_monat|float, nutzung.nutzung_datum_jahr) }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title text-center fw-semibold">Häufigste Nutzungen</h5>
+                    <span class="btn btn-sm btn-outline-primary position-absolute end-0 top-0 m-2 disabled">Werk</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group">
+                        {% for nutzung in meiste_nutzungen %}
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between ps-2" href="{{ url_for('werk.werk', werk_id=nutzung.fk_werk_id) }}">
+                                <p class="m-0">{{ nutzung.werk_titel }}</p>
+                                <span>{{ nutzung.anzahl_nutzungen }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script>
+        // Aktivieren der Tooltips, die auf der Seite verwendet werden
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+{% endblock %}

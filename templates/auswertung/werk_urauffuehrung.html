@@ -1,0 +1,248 @@
+{% extends 'main.html' %}
+
+<!-- Zusätzliche CSS Dateien für diese Seite -->
+{% block head_additional_css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='plugins/DataTables/datatables.css') }}">
+{% endblock %}
+
+<!-- Inhalte der Seite -->
+{% block body_content %}
+    <!-- Titel der Seite -->
+    <div class="px-4 py-4 text-center">
+        <h1 class="fw-bold">Auswertung: Uraufführungen</h1>
+    </div>
+
+    <!-- Diagramm: Uraufführungen pro Jahr -->
+    <div class="card">
+        <div class="card-header p-3">
+            <h4 class="card-titel text-center fw-semibold m-0">Uraufführungen von {{ daten_auswertung | min }} bis {{ daten_auswertung | max }}</h4>
+        </div>
+        <div class="card-body">
+            <canvas id="diagramm_jahr_urauffuehrungen" class="w-100">
+                <p>Leider kann das angefragte Diagramm aufgrund eines Fehlers nicht angezeigt werden.</p>
+            </canvas>
+            <p class="my-2">* Im oben dargestellten Diagramm können <span>{{ statistik.anzahl_nutzungen_ohne_datum_jahr }}</span> Uraufführungen aufgrund des fehlenden Aufführungsjahrs nicht angezeigt werden.</p>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#daten_diagramm_jahr_urauffuehrungen">Alle Uraufführungsdaten anzeigen/ausblenden</button>
+
+            <!-- Ausgeblendete Daten zum Diagramm -->
+            <div class="table-responsive collapse m-2" id="daten_diagramm_jahr_urauffuehrungen">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Aufführungsjahr</th>
+                        <th scope="col">Werktitel</th>
+                        <th scope="col">Kontext</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for jahr, daten in daten_auswertung.items() %}
+                        {% for urauffuehrung in daten.urauffuehrungen %}
+                            <tr onclick="location.href='{{ url_for('nutzung.nutzung', nutzung_id=urauffuehrung.nutzung_id) }}'">
+                                <td>{{ urauffuehrung.nutzung_id }}</td>
+                                <td>{{ urauffuehrung.nutzung_datum_jahr }}</td>
+                                <td>{{ urauffuehrung.werk_titel }}</td>
+                                <td>{{ urauffuehrung.nutzung_kontext }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagramm: Uraufführungen + Werkentstehung -->
+    <div class="card mt-4">
+        <div class="card-header p-3">
+            <h4 class="card-titel text-center fw-semibold m-0">Uraufführungen und Werkentstehung von {{ daten_auswertung | min }} bis {{ daten_auswertung | max }}</h4>
+            <p class="card-titel text-center text-secondary m-0">(basierend auf der Jahreszahl des Werk-Entstehung-Endes)</p>
+        </div>
+        <div class="card-body">
+            <canvas id="diagramm_jahr_urauffuehrungen_entstehungsjahr" class="w-100">
+                <p>Leider kann das angefragte Diagramm aufgrund eines Fehlers nicht angezeigt werden.</p>
+            </canvas>
+            <p class="my-2">* Im oben dargestellten Diagramm können <span>{{ statistik.anzahl_nutzungen_ohne_datum_jahr }}</span> Uraufführungen aufgrund des fehlenden Aufführungsjahrs nicht angezeigt werden.</p>
+            <p class="my-2">* Zudem können <span>{{ statistik.anzahl_werke_ohne_jahr_entstehung_ende }}</span> Werke aufgrund des fehlenden Entstehungsjahrs nicht angezeigt werden.</p>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#daten_diagramm_jahr_urauffuehrungen_entstehungsjahr">Alle Uraufführungsdaten anzeigen/ausblenden</button>
+
+            <!-- Ausgeblendete Daten zum Diagramm -->
+            <div class="table-responsive collapse m-2" id="daten_diagramm_jahr_urauffuehrungen_entstehungsjahr">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Aufführungsjahr</th>
+                        <th scope="col">Werktitel</th>
+                        <th scope="col">Kontext</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for jahr, daten in daten_auswertung.items() %}
+                        {% for urauffuehrung in daten.urauffuehrungen %}
+                            <tr onclick="location.href='{{ url_for('nutzung.nutzung', nutzung_id=urauffuehrung.nutzung_id) }}'">
+                                <td>{{ urauffuehrung.nutzung_id }}</td>
+                                <td>{{ urauffuehrung.nutzung_datum_jahr }}</td>
+                                <td>{{ urauffuehrung.werk_titel }}</td>
+                                <td>{{ urauffuehrung.nutzung_kontext }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagramm: Uraufführungen zu Werke -->
+    <div class="card mt-4">
+        <div class="card-header p-3">
+            <h4 class="card-titel text-center fw-semibold m-0">Werke mit und ohne Uraufführung</h4>
+            <p class="card-titel text-center text-secondary m-0">hierbei werden ausschließlich Werke der Werkart "Komposition" betrachtet</p>
+        </div>
+        <div class="card-body">
+            <canvas id="diagramm_werke_mit_ohne_urauffuehrung" class="w-100">
+                <p>Leider kann das angefragte Diagramm aufgrund eines Fehlers nicht angezeigt werden.</p>
+            </canvas>
+        </div>
+    </div>
+{% endblock %}
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <!-- Einbinden der zusätzlichen JavaScript-Dateien des Plugins ChartJS zum Anzeigen der Diagramme -->
+    <script src="{{ url_for('static', filename='plugins/Chartjs/dist/chart.umd.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='plugins/Chartjs/plugins/chartjs-plugin-datalabels.js') }}"></script>
+    <script>
+        // Ändern der Standardwerte, damit die Punkte besser angeklickt werden können
+        Chart.defaults.elements.point.hitRadius = 10;
+        Chart.defaults.elements.point.hoverRadius = 10;
+    </script>
+    <script>
+        // Konstante mit den Daten aus der Datenbank
+        const daten_nutzung_jahr = {{ daten_auswertung | tojson }};
+        const werke_mit_ohne_urauffuehrung = {{ werke_mit_ohne_urauffuehrung | tojson }};
+
+        // Initiieren der späteren verwendeten Dictionaries
+        anzahl_urauffuehrungen_nach_jahr = {}
+        anzahl_werke_nach_jahr = {}
+
+        // Umwandlung des bisherigen Dictionaries, sodass das Dictionary nun { 'Jahr': 'Anzahl' } entspricht
+        Object.entries(daten_nutzung_jahr).forEach(([jahr, info_dict]) => {
+            anzahl_urauffuehrungen_nach_jahr[jahr] = info_dict.urauffuehrungen.length;
+            anzahl_werke_nach_jahr[jahr] = info_dict.werke.length;
+        });
+
+        // Aktivieren des Beschriftungs-Plugins von ChartJS
+        Chart.register(ChartDataLabels);
+
+        // Initiieren eines neuen Diagramms
+        const chart_werke_urauffuehrungen = new Chart(
+            document.querySelector('#diagramm_jahr_urauffuehrungen'),
+            {
+                type: 'line', // Liniendiagramm
+                data: {
+                    labels: Object.keys(anzahl_urauffuehrungen_nach_jahr),
+                    datasets: [
+                        {
+                            label: 'Werk-Entstehungen pro Jahr',
+                            data: Object.values(anzahl_urauffuehrungen_nach_jahr),
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'center'
+                            }
+                        }
+
+                    ]
+                },
+                options: {
+                    plugins: {
+                        datalabels: {
+                            borderRadius: 4,
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: Math.round,
+                            padding: 6
+                        }
+                    }
+                }
+            }
+        );
+
+        // Initiieren eines neuen Diagramms
+        const chart_urauffuehrungen_entstehungsjahr = new Chart(
+            document.querySelector('#diagramm_jahr_urauffuehrungen_entstehungsjahr'),
+            {
+                type: 'line', // Liniendiagramm
+                data: {
+                    labels: Object.keys(anzahl_werke_nach_jahr),
+                    datasets: [
+                        {
+                            label: 'Werk-Entstehungen pro Jahr',
+                            data: Object.values(anzahl_werke_nach_jahr),
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'center'
+                            }
+                        },
+                        {
+                            label: 'Uraufführungen pro Jahr',
+                            data: Object.values(anzahl_urauffuehrungen_nach_jahr),
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'center'
+                            }
+                        }
+                    ]
+                },
+                options: {
+                    plugins: {
+                        datalabels: {
+                            borderRadius: 4,
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: Math.round,
+                            padding: 6
+                        }
+                    }
+                }
+            }
+        );
+
+
+        // Initiieren eines neuen Diagramms
+        const chart_werke_mit_ohne_urauffuehrung = new Chart(
+            document.querySelector('#diagramm_werke_mit_ohne_urauffuehrung'),
+            {
+                type: 'doughnut', // Liniendiagramm
+                data: {
+                    labels: Object.keys(werke_mit_ohne_urauffuehrung),
+                    datasets: [
+                        {
+                            label: 'Werke mit und ohne Uraufführung',
+                            data: Object.values(werke_mit_ohne_urauffuehrung),
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'center'
+                            }
+                        }
+                    ]
+                },
+                options: {
+                    plugins: {
+                        datalabels: {
+                            borderRadius: 4,
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: Math.round,
+                            padding: 6
+                        }
+                    }
+                }
+            }
+        );
+    </script>
+{% endblock %}

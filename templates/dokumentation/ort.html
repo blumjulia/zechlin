@@ -1,0 +1,36 @@
+{% extends 'dokumentation/_schema.html' %}
+
+{% block schema_er_diagramm %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_diagramm_ort.png') }}" alt="ER Diagramm">
+{% endblock %}
+
+{% block schema_datenmodell %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_datenmodell_ort.png') }}" alt="ER Datenmodell">
+{% endblock %}
+
+{% block schema_datenbank %}
+    <table class="table table-striped w-100" id="data_table">
+        <thead>
+        <tr>
+            <th scope="col">ort_id</th>
+            <th scope="col">ort_name</th>
+            <th scope="col">ort_adresse</th>
+            <th scope="col">ort_latitude</th>
+            <th scope="col">ort_longitude</th>
+            <th scope="col">ort_kommentar</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ort in orte %}
+            <tr>
+                <th scope="row">{{ ort.ort_id }}</th>
+                <td>{{ ort.ort_name }}</td>
+                <td>{{ ort.ort_adresse }}</td>
+                <td>{{ ort.ort_latitude }}</td>
+                <td>{{ ort.ort_longitude }}</td>
+                <td>{{ ort.ort_kommentar }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

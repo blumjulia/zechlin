@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <title>Zechlin | {{ title }}</title>
+    <meta charset="utf-8"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!-- Einbinden von Bootstrap - Framework -->
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet" type="text/css"/>
+
+    <!-- Einbinden der CSS Dateien für das Icon-Plugin Fontawesome -->
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/fontawesome.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/brands.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/solid.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/regular.css') }}" rel="stylesheet">
+
+    <!-- Zusätzliche CSS Dateien für diese Seite -->
+    {% block head_additional_css %}
+    {% endblock %}
+
+    <!-- Eigene CSS Datei für spezifische Änderungen -->
+    <link href="{{ url_for('static', filename='css/custom.css') }}" type="text/css" rel="stylesheet"/>
+</head>
+
+<!-- HTML Body -->
+<body>
+
+<!-- Navigationsleiste -->
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <!-- Seiten-"logo" -->
+        <a class="navbar-brand" href="{{ url_for('index.index') }}">Ruth Zechlin</a>
+        <!-- Falls das Gerät zu schmal ist, wird ein Icon, statt der kompletten Navigationsleiste angezeigt -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Beginn: Navigationspunkte -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <!-- Startseite: Schnellsuche und Willkommensseite -->
+                    <a class="nav-link" id="zechlin_nav_start" aria-current="page" href="{{ url_for('index.index') }}">Startseite</a>
+                </li>
+                <li class="nav-item">
+                    <!-- Werkverzeichnis mit erweiterter Werksuche sowie Gattungs/RISM-Auflistung -->
+                    <a class="nav-link" id="zechlin_nav_werke" aria-current="page" href="{{ url_for('werk.verzeichnis') }}">Werkverzeichnis</a>
+                </li>
+                <li class="nav-item">
+                    <!-- Nutzungsverzeichnis mit erweiterter Nutzungssuche sowie Auflistung der meist genutzten Werke bzw. letzte Nutzungen -->
+                    <a class="nav-link" id="zechlin_nav_nutzungen" aria-current="page" href="{{ url_for('nutzung.verzeichnis') }}">Nutzungsverzeichnis</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <!-- Auswertungen: Diagramme/interaktive Karte zu Nutzungen und Werken als auch Verlagen -->
+                    <a class="nav-link dropdown-toggle" id="zechlin_nav_auswertung" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Auswertung</a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item-text ps-2">Werke</li>
+                        <li><a class="dropdown-item ps-4" href="{{ url_for('auswertung.werk_entstehung') }}">Entstehungsjahr</a></li>
+                        <li><a class="dropdown-item ps-4" href="{{ url_for('auswertung.werk_urauffuehrung') }}">Uraufführungen</a></li>
+                        <li><a class="dropdown-item ps-4" href="{{ url_for('auswertung.werk_verlag') }}">Verlage</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="dropdown-item-text ps-2">Werknutzung</li>
+                        <li><a class="dropdown-item ps-4" href="{{ url_for('auswertung.werknutzung_karte') }}">interaktive Karte</a></li>
+                        <li><a class="dropdown-item ps-4" href="{{ url_for('auswertung.werk_nutzung') }}">Werknutzungen</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <!-- Unterseiten: Dokumentation zur jeweiligen Entität -->
+                    <a class="nav-link dropdown-toggle" id="zechlin_nav_dokumentation" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Dokumentation
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.datenbank_struktur') }}">Datenbank-Struktur</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.werk') }}">Werk</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.werkart') }}">Werkart</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.ausgabe') }}">Ausgabe</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.verlag') }}">Verlag</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.gattung') }}">Gattung</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.untergattung') }}">Untergattung</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.detailgattung') }}">Detailgattung</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.rism') }}">Besetzung</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.rism_kategorie') }}">Besetzungskategorie</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.ort') }}">Ort</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.nutzung') }}">Nutzung</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('dokumentation.quelle_nutzung') }}">Nutzung: Quellen</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="https://schema.org">JSON-LD Referenz</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- Schnellsuche: Gleiche wie auf Startseite -->
+            <form class="d-flex" role="search" method="GET" action="{{ url_for('suche.ergebnis_schnellsuche') }}">
+                <input class="form-control me-2" type="search" id="suchbegriff" name="suchbegriff" placeholder="Schnellsuche" aria-label="Suche">
+                <button class="btn btn-outline-secondary" type="submit">Suchen</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Start: jeweiliger Seiten-Content -->
+<main class="container-fluid px-2 px-lg-5 mb-5">
+    {% block body_content %}
+    {% endblock %}
+</main>
+
+<!-- Bootstrap JavaScript Einbindung -->
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+
+<!-- Script zum automatischen "aktivieren" des Menüpunktes -->
+<script>
+    let aktives_menu = "{{ aktives_menu }}";
+    document.getElementById('zechlin_nav_' + aktives_menu).classList.remove('text-secondary');
+    document.getElementById('zechlin_nav_' + aktives_menu).classList.add('text-primary');
+    document.getElementById('zechlin_nav_' + aktives_menu).classList.add('fw-semibold');
+</script>
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+{% endblock %}
+</body>
+</html>

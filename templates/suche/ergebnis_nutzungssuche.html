@@ -1,0 +1,71 @@
+{% extends 'main.html' %}
+
+<!-- Zusätzliche CSS Dateien für diese Seite -->
+{% block head_additional_css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='plugins/DataTables/datatables.css') }}">
+{% endblock %}
+
+{% block body_content %}
+
+    <div class="py-4 text-center">
+        <h1 class="fw-bold">{{ nutzungen | length }} Nutzungen zu Ihrer Suche</h1>
+    </div>
+
+    <table class="table table-hover w-100" id="data_table">
+        <thead>
+        <tr>
+            <th scope="col">Werktitel</th>
+            <th scope="col">Art</th>
+            <th scope="col">Kontext</th>
+            <th scope="col">Zeitpunkt</th>
+            <th scope="col">Ort</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for nutzung in nutzungen %}
+            <tr class="py-2" onclick="location.href='{{ url_for('nutzung.nutzung', nutzung_id=nutzung.nutzung_id) }}'">
+                <td>{{ nutzung.werk_titel }}</td>
+                <td>{{ nutzung.nutzung_art }}</td>
+                <td>{% if nutzung.nutzung_kontext is not none %}{{ nutzung.nutzung_kontext }}{% else %}<i>[unbekannt]</i>{% endif %}</td>
+                <td>
+                        {% if nutzung.nutzung_datum_tag is not none %}
+                            {% set tag = '{:02.0f}'.format(nutzung.nutzung_datum_tag|float) %}
+                        {% else %}
+                            {% set tag  = '[??]' %}
+                        {% endif %}
+                        {% if nutzung.nutzung_datum_monat is not none %}
+                            {% set monat = '{:02.0f}'.format(nutzung.nutzung_datum_monat|float) %}
+                        {% else %}
+                            {% set monat = '[??]' %}
+                        {% endif %}
+                        {% if nutzung.nutzung_datum_jahr is not none %}
+                            {% set jahr = nutzung.nutzung_datum_jahr %}
+                        {% else %}
+                            {% set jahr = '[????]' %}
+                        {% endif %}
+
+                        {{ '{}.{}.{}'.format(tag, monat, jahr) }}{% if nutzung.nutzung_zeit_stunde is not none %},{% endif %}
+                        {% if nutzung.nutzung_zeit_stunde is not none and nutzung.nutzung_zeit_minute is not none %}{{ '{:02.0f}'.format(nutzung.nutzung_zeit_stunde|float) }}:{{ '{:02.0f}'.format(nutzung.nutzung_zeit_minute|float) }} Uhr{% endif %}
+                </td>
+                <td>{% if nutzung.fk_ort_id is not none %}{{ nutzung.ort_name }}{% else %}<i>[unbekannt]</i>{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script src="{{ url_for('static', filename='plugins/DataTables/datatables.js') }}"></script>
+
+    <script>
+        // Initiieren der Datentabelle (Plugin: DataTable)
+        const table = $('#data_table').DataTable({
+            "language": {
+                url: "{{ url_for('static', filename='plugins/DataTables/de-DE.json') }}"
+            },
+            "scrollX": true,
+            "autoWidth": true
+        });
+    </script>
+{% endblock %}

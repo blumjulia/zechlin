@@ -1,0 +1,57 @@
+{% extends 'main.html' %}
+
+<!-- Zusätzliche CSS Dateien für diese Seite -->
+{% block head_additional_css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='plugins/DataTables/datatables.css') }}">
+{% endblock %}
+
+{% block body_content %}
+
+    <div class="py-4 text-center">
+        <h1 class="fw-bold">{{ werke | length }} Werke zu Ihrer Suche</h1>
+    </div>
+
+    <table class="table table-hover w-100" id="data_table">
+        <thead>
+        <tr>
+            <th scope="col">WN zechlin</th>
+            <th scope="col">Werktitel</th>
+            <th scope="col">Werktinhalt</th>
+            <th scope="col">Werkenstehung</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for werk in werke %}
+            <tr class="py-2" onclick="location.href='{{ url_for('werk.werk', werk_id=werk.werk_id) }}'">
+                <td>{% if werk.werk_nummer_zechlin %}{{ werk.werk_nummer_zechlin }}{% else %}[?]{% endif %}</td>
+                <td>
+                    <span class="fw-semibold">{{ werk.werk_titel }}</span><br />
+                    {% if werk.werk_untertitel %}{{ werk.werk_untertitel }}{% endif %}
+                </td>
+                <td>
+                    <span class="d-inline-block text-truncate" style="max-width: 300px;">{% if werk.werk_inhalt %}{{ werk.werk_inhalt }}{% endif %}</span>
+                </td>
+                <td>
+                    {% if werk.werk_jahr_entstehung_ende %}{{ werk.werk_jahr_entstehung_ende }}{% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script src="{{ url_for('static', filename='plugins/DataTables/datatables.js') }}"></script>
+
+    <script>
+        // Initiieren der Datentabelle (Plugin: DataTable)
+        const table = $('#data_table').DataTable({
+            "language": {
+                url: "{{ url_for('static', filename='plugins/DataTables/de-DE.json') }}"
+            },
+            "scrollX": true,
+            "autoWidth": true
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,258 @@
+{% extends 'main.html' %}
+
+<!-- Zusätzliche CSS Dateien für diese Seite -->
+{% block head_additional_css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='plugins/DataTables/datatables.css') }}">
+{% endblock %}
+
+<!-- Inhalte der Seite -->
+{% block body_content %}
+    <!-- Titel der Seite -->
+    <div class="px-4 py-4 text-center">
+        <h1 class="fw-bold">Auswertung: Werkentstehungen</h1>
+    </div>
+
+    <!-- Diagramm: Werkentstehungen pro Jahr: Entstehung-Ende -->
+    <div class="card">
+        <div class="card-header p-3">
+            <h4 class="card-titel text-center fw-semibold m-0">Werk-Entstehungen von {{ daten_werke_entstehung_ende | min }} bis {{ daten_werke_entstehung_ende | max }}</h4>
+            <p class="card-titel text-center text-secondary m-0">(basierend auf der Jahreszahl des Werk-Entstehung-Endes)</p>
+        </div>
+        <div class="card-body">
+            <canvas id="diagramm_werke_entstehung_ende" class="w-100">
+                <p>Leider kann das angefragte Diagramm aufgrund eines Fehlers nicht angezeigt werden.</p>
+            </canvas>
+            <p class="my-2">* Im oben dargestellten Diagramm konnten <span>{{ statistik.anzahl_werke_ohne_jahr_entstehung_ende }}</span> Werke aufgrund des fehlenden Entstehungsjahres nicht angezeigt werden.</p>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#daten_diagramm_werke_entstehung_ende">Alle Werkdaten anzeigen/ausblenden</button>
+
+            <!-- Ausgeblendete Daten zum Diagramm -->
+            <div class="table-responsive collapse m-2" id="daten_diagramm_werke_entstehung_ende">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">WN</th>
+                        <th scope="col">Werk Entstehung Ende</th>
+                        <th scope="col">Werk-Titel</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for jahr, daten in daten_werke_entstehung_ende.items() %}
+                        {% for werk in daten.werke %}
+                            <tr onclick="location.href='{{ url_for('werk.werk', werk_id=werk.werk_id) }}'">
+                                <td>{{ werk.werk_id }}</td>
+                                <td>{{ werk.werk_nummer_zechlin }}</td>
+                                <td>{{ werk.werk_jahr_entstehung_ende }}</td>
+                                <td>{{ werk.werk_titel }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagramm: Werkentstehungen gruppiert in Gattungen -->
+    <div class="card mt-3">
+        <div class="card-header p-3">
+            <h4 class="card-titel text-center fw-semibold m-0">Werk-Entstehungen von {{ daten_werke_entstehung_ende | min }} bis {{ daten_werke_entstehung_ende | max }}</h4>
+            <p class="text-center fw-semibold m-0">mit Bezug auf spezifizierte Gattungen und Untergattungen</p>
+            <p class="text-center text-secondary m-0">(basierend auf der Jahreszahl des Werk-Entstehung-Endes)</p>
+        </div>
+        <div class="card-body">
+            <canvas id="diagramm_werke_gattung_entstehung_ende" class="w-100">
+                <p>Leider kann das angefragte Diagramm aufgrund eines Fehlers nicht angezeigt werden.</p>
+            </canvas>
+            <p class="my-2">* Im oben dargestellten Diagramm konnten <span>{{ statistik.anzahl_werke_ohne_jahr_entstehung_ende }}</span> Werke aufgrund des fehlenden Entstehungsjahres nicht angezeigt werden.</p>
+            <p class="my-2">* Weitere <span>{{ statistik.anzahl_werke_ohne_gattung }}</span> Werke haben keine Gattung sowie zusätzliche <span>{{ statistik.anzahl_werke_ohne_untergattung }}</span> Werke keine Untergattung</p>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#daten_diagramm_werke_gattungen_entstehung_ende">Alle Werkdaten anzeigen/ausblenden</button>
+
+            <!-- Ausgeblendete Daten zum Diagramm -->
+            <div class="table-responsive collapse m-2" id="daten_diagramm_werke_gattungen_entstehung_ende">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">WN</th>
+                        <th scope="col">Werk Entstehung Ende</th>
+                        <th scope="col">Titel</th>
+                        <th scope="col">Gattung</th>
+                        <th scope="col">Untergattung</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for werk in werke %}
+                        <tr onclick="location.href='{{ url_for('werk.werk', werk_id=werk.werk_id) }}'">
+                            <td>{{ werk.werk_id }}</td>
+                            <td>{{ werk.werk_nummer_zechlin }}</td>
+                            <td>{{ werk.werk_jahr_entstehung_ende }}</td>
+                            <td>{{ werk.werk_titel }}</td>
+                            <td>{{ werk.gattung_name }}</td>
+                            <td>{{ werk.untergattung_name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <!-- Einbinden der zusätzlichen JavaScript-Dateien des Plugins ChartJS zum Anzeigen der Diagramme -->
+    <script src="{{ url_for('static', filename='plugins/Chartjs/dist/chart.umd.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='plugins/Chartjs/plugins/chartjs-plugin-datalabels.js') }}"></script>
+    <script>
+        // Ändern der Standardwerte, damit die Punkte besser angeklickt werden können
+        Chart.defaults.elements.point.hitRadius = 10;
+        Chart.defaults.elements.point.hoverRadius = 10;
+    </script>
+    <script>
+        // Konstante mit den Daten aus der Datenbank
+        const daten_werke_entstehung_ende = {{ daten_werke_entstehung_ende | tojson }};
+
+        // Initiieren der späteren verwendeten Dictionaries
+        anzahl_werke_nach_jahr = {}
+        werke_gattung_buehnenwerke_nach_jahr = {}
+        werke_untergattung_kammermusik_nach_jahr = {}
+        werke_untergattung_konzerte_mit_orchester_nach_jahr = {}
+        werke_untergattung_orchesterwerke_nach_jahr = {}
+        werke_untergattung_geistliche_vokalmusik_nach_jahr = {}
+        werke_untergattung_weltliche_vokalmusik_nach_jahr = {}
+
+        // Umwandlung des bisherigen Dictionaries, sodass das Dictionary nun { 'Jahr': 'Anzahl' } entspricht
+        Object.entries(daten_werke_entstehung_ende).forEach(([jahr, info_dict]) => {
+            anzahl_werke_nach_jahr[jahr] = info_dict.werke.length;
+            werke_gattung_buehnenwerke_nach_jahr[jahr] =  info_dict.gattungen[1] !== undefined ? info_dict.gattungen[1].length : 0
+            werke_untergattung_kammermusik_nach_jahr[jahr] = info_dict.untergattungen[6] !== undefined ? info_dict.untergattungen[6].length : 0
+            werke_untergattung_konzerte_mit_orchester_nach_jahr[jahr] = info_dict.untergattungen[7] !== undefined ? info_dict.untergattungen[7].length : 0
+            werke_untergattung_orchesterwerke_nach_jahr[jahr] = info_dict.untergattungen[9] !== undefined ? info_dict.untergattungen[9].length : 0
+            werke_untergattung_geistliche_vokalmusik_nach_jahr[jahr] = info_dict.untergattungen[4] !== undefined ? info_dict.untergattungen[4].length : 0
+            werke_untergattung_weltliche_vokalmusik_nach_jahr[jahr] = info_dict.untergattungen[11] !== undefined ? info_dict.untergattungen[11].length : 0
+        });
+
+        // Aktivieren des Beschriftungs-Plugins von ChartJS
+        Chart.register(ChartDataLabels);
+
+        // Initiieren eines neuen Diagramms
+        const chart_werke_entstehung_ende = new Chart(
+            document.querySelector('#diagramm_werke_entstehung_ende'),
+            {
+                type: 'line', // Liniendiagramm
+                data: {
+                    labels: Object.keys(anzahl_werke_nach_jahr),
+                    datasets: [
+                        {
+                            label: 'Werk-Entstehungen pro Jahr',
+                            data: Object.values(anzahl_werke_nach_jahr),
+                            datalabels: {
+                                align: 'end',
+                                anchor: 'center'
+                            }
+                        }
+
+                    ]
+                },
+                options: {
+                    plugins: {
+                        datalabels: {
+                            borderRadius: 4,
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: Math.round,
+                            padding: 6
+                        }
+                    }
+                }
+            }
+        );
+
+        // Initiieren eines neuen Diagramms
+        const chart_werke_gattungen_entstehung_ende = new Chart(
+            document.querySelector('#diagramm_werke_gattung_entstehung_ende'),
+            {
+                type: 'bar', // Balkendiagramm
+                data: {
+                    labels: Object.keys(anzahl_werke_nach_jahr),
+                    datasets: [
+                        {
+                            label: 'Bühnenwerke',
+                            data: Object.values(werke_gattung_buehnenwerke_nach_jahr),
+                            datalabels: {
+                                align: 'center',
+                                anchor: 'center'
+                            }
+                        },
+                        {
+                            label: 'Kammermusik',
+                            data: Object.values(werke_untergattung_kammermusik_nach_jahr),
+                            datalabels: {
+                                align: 'center',
+                                anchor: 'center'
+                            }
+                        },
+                        {
+                            label: 'Konzerte mit Orchester',
+                            data: Object.values(werke_untergattung_konzerte_mit_orchester_nach_jahr),
+                            datalabels: {
+                                align: 'center',
+                                anchor: 'center'
+                            }
+                        },
+                        {
+                            label: 'Orchesterwerke',
+                            data: Object.values(werke_untergattung_orchesterwerke_nach_jahr),
+                            datalabels: {
+                                align: 'center',
+                                anchor: 'center'
+                            }
+                        },
+                        {
+                            label: 'geistliche Vokalmusik',
+                            data: Object.values(werke_untergattung_geistliche_vokalmusik_nach_jahr),
+                            datalabels: {
+                                align: 'center',
+                                anchor: 'center'
+                            }
+                        },
+                        {
+                            label: 'weltliche Vokalmusik',
+                            data: Object.values(werke_untergattung_weltliche_vokalmusik_nach_jahr),
+                            datalabels: {
+                                align: 'center',
+                                anchor: 'center'
+                            }
+                        },
+
+                    ]
+                },
+                options: {
+                    plugins: {
+                        datalabels: {
+                            borderRadius: 4,
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: Math.round,
+                            padding: 6,
+                            display: (context) => {
+                                return context.dataset.data[context.dataIndex] > 0;
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    }
+                }
+            }
+        )
+    </script>
+{% endblock %}

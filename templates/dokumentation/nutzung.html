@@ -1,0 +1,58 @@
+{% extends 'dokumentation/_schema.html' %}
+
+{% block schema_er_diagramm %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_diagramm_nutzung.png') }}" alt="ER Diagramm">
+{% endblock %}
+
+{% block schema_datenmodell %}
+    <img class="mw-100" src="{{ url_for('static', filename='media/er_datenmodell_nutzung.png') }}" alt="ER Datenmodell">
+{% endblock %}
+
+{% block schema_datenbank %}
+<table class="table table-striped" id="data_table">
+            <thead>
+            <tr>
+                <th scope="col">nutzung_id</th>
+                <th scope="col">nutzung_kontext</th>
+                <th scope="col">nutzung_art</th>
+                <th scope="col">nutzung_ist_urauffuehrung</th>
+                <th scope="col">nutzung_ist_erstauffuehrung</th>
+                <th scope="col">nutzung_erstauffuehrung_kommentar</th>
+                <th scope="col">nutzung_kommentar</th>
+                <th scope="col">nutzung_datum_tag</th>
+                <th scope="col">nutzung_datum_monat</th>
+                <th scope="col">nutzung_datum_jahr</th>
+                <th scope="col">nutzung_zeit_stunde</th>
+                <th scope="col">nutzung_zeit_minute</th>
+                <th scope="col">nutzung_datum_kommentar</th>
+                <th scope="col">nutzung_beteiligte</th>
+                <th scope="col">nutzung_spieldauer_in_s</th>
+                <th scope="col">fk_ort_id</th>
+                <th scope="col">fk_werk_id</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for nutzung in nutzungen %}
+                <tr>
+                    <th scope="row">{{ nutzung.nutzung_id }}</th>
+                    <td>{{ nutzung.nutzung_kontext }}</td>
+                    <td>{{ nutzung.nutzung_art }}</td>
+                    <td>{{ nutzung.nutzung_ist_urauffuehrung == 1 }}</td>
+                    <td>{{ nutzung.nutzung_ist_erstauffuehrung == 1 }}</td>
+                    <td>{{ nutzung.nutzung_erstauffuehrung_kommentar }}</td>
+                    <td>{{ nutzung.nutzung_kommentar }}</td>
+                    <td>{{ nutzung.nutzung_datum_tag }}</td>
+                    <td>{{ nutzung.nutzung_datum_monat }}</td>
+                    <td>{{ nutzung.nutzung_datum_jahr }}</td>
+                    <td>{{ nutzung.nutzung_zeit_stunde }}</td>
+                    <td>{{ nutzung.nutzung_zeit_minute }}</td>
+                    <td>{{ nutzung.nutzung_datum_kommentar }}</td>
+                    <td>{{ nutzung.nutzung_beteiligte }}</td>
+                    <td>{{ nutzung.nutzung_spieldauer_in_s }}</td>
+                    <td>{{ nutzung.fk_werk_id }}</td>
+                    <td>{{ nutzung.fk_ort_id }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'main.html' %}
+
+<!-- Zusätzliche CSS Dateien für diese Seite -->
+{% block head_additional_css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='plugins/swagger-ui/dist/swagger-ui.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='plugins/DataTables/datatables.css') }}">
+{% endblock %}
+
+{% block body_content %}
+    <div class="px-2 px-lg-5 py-3">
+        <h1>{{ title }}</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index.index') }}">Startseite</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="p-4 mb-3 bg-body-secondary text-center">
+        <h2>ER-Diagramm:</h2>
+    </div>
+
+    <div class="d-flex justify-content-around py-4">
+        {% block schema_er_diagramm %}
+        {% endblock %}
+    </div>
+
+    <hr>
+
+    <div class="p-4 mb-3 bg-body-secondary text-center">
+        <h2>ER-Datenmodell:</h2>
+    </div>
+
+    <div class="d-flex justify-content-around py-4">
+        {% block schema_datenmodell %}
+        {% endblock %}
+    </div>
+
+    <hr>
+
+    <div class="p-4 mb-3 bg-body-secondary text-center">
+        <h2>Datenbank-Einträge:</h2>
+    </div>
+
+    <div class="py-4">
+        {% block schema_datenbank %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+
+<!-- Zusätzliche JavaScript Dateien sowie individuelle Funktionen der Seite -->
+{% block body_custom_js %}
+    <script src="{{ url_for('static', filename='plugins/DataTables/datatables.js') }}"></script>
+
+    <script>
+        // Initiieren der Datentabelle (Plugin: DataTable)
+        const table = $('#data_table').DataTable({
+            "language": {
+                url: "{{ url_for('static', filename='plugins/DataTables/de-DE.json') }}"
+            },
+            "scrollX": true,
+            "autoWidth": true
+        });
+    </script>
+
+    <script>
+        table.responsive.recalc()
+    </script>
+{% endblock %}
