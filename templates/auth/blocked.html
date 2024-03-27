@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <title>Zugriff verweigert</title>
+    <meta charset="utf-8"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!-- Einbinden von Bootstrap - Framework -->
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet" type="text/css"/>
+
+    <!-- Einbinden der CSS Dateien für das Icon-Plugin Fontawesome -->
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/fontawesome.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/brands.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/solid.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/regular.css') }}" rel="stylesheet">
+</head>
+
+<!-- HTML Body -->
+<body>
+<div class="alert alert-danger d-flex flex-column align-items-center py-5" role="alert">
+    <div class="d-flex align-items-center justify-content-between">
+        <h1 class="w-auto ms-3 me-5"><i class="fa-solid fa-shield"></i></h1>
+        <div class="w-80">
+            <h2>Zugriff verweigert!</h2>
+            <p class="fw-semibold pe-5">Wir haben festgestellt, dass Sie bereits mehrfach einen falschen Zugangscode verwendet haben und haben Sie deshalb zur Sicherheit für <br /> <span class="fw-bold"> {{ info.duration|string + ' Stunden' }} gesperrt</span>.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

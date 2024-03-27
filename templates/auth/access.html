@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <title>Zechlin | Zugriffsanfrage</title>
+    <meta charset="utf-8"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!-- Einbinden von Bootstrap - Framework -->
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet" type="text/css"/>
+
+    <!-- Einbinden der CSS Dateien für das Icon-Plugin Fontawesome -->
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/fontawesome.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/brands.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/solid.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='plugins/fontawesome/css/regular.css') }}" rel="stylesheet">
+</head>
+
+<!-- HTML Body -->
+<body>
+<div class="alert alert-warning d-flex flex-column align-items-center" role="alert">
+    <div class="d-flex align-items-center">
+        <h1 class="col-2"><i class="fa-solid fa-info"></i></h1>
+        <div class="col-10">
+            <h3>Herzlich Willkommen!</h3>
+            <p>Der Zugriff zu dieser Seite ist eingeschränkt. Bitte geben Sie daher nachfolgend den Zugriffscode ein.</p>
+        </div>
+    </div>
+</div>
+
+<div class="p-5">
+    <form method="POST" action="{{ url_for('auth.access') }}" class="px-5">
+        {% if response is undefined %}
+            <div class="mb-3 row">
+                <label for="code" class="col-sm-2 col-form-label">Zugriffscode:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="code" name="code" required>
+                </div>
+            </div>
+            <div class="row">
+                <input type="submit" class="btn btn-outline-primary" value="Bestätigen">
+            </div>
+        {% else %}
+            <div class="mb-3 row">
+                <label for="code" class="col-sm-2 col-form-label">Zugriffscode:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control is-invalid" id="code" name="code" value="{{ response.input }}" required>
+                    <p class="invalid-feedback">{{ response.message }}</p>
+                </div>
+            </div>
+            <div class="row">
+                <input type="submit" class="btn btn-outline-primary" value="Bestätigen">
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+
+</body>
+</html>
