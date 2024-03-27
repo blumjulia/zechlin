@@ -4,6 +4,7 @@ from flask import (
 )
 
 from zechlin import config
+from zechlin.auth import login_required
 
 bp = Blueprint('index', __name__)
 
@@ -16,6 +17,7 @@ bp = Blueprint('index', __name__)
 
 
 @bp.route('/')
+@login_required
 def index() -> str:
     """
     Startseite mit Schnellsuche
@@ -30,6 +32,7 @@ def index() -> str:
 
 
 @bp.route('/pid/<pid>')
+@login_required
 def pid(pid) -> flask.wrappers.Response:
     """
     Weiterleitung zur Entität auf Basis der PID

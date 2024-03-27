@@ -7,6 +7,7 @@ import json
 from flask import Blueprint, url_for
 
 from zechlin import config
+from zechlin.auth import login_required
 from zechlin.datenbank import get_database_connection
 
 bp = Blueprint('export', __name__)
@@ -100,14 +101,30 @@ ISO_8601_JAHR = '{jahr}'
 
 
 @bp.route('/export/json_ld/werk/<int:werk_id>')
-def json_ld_werk(werk_id, nutzung_beinhalten=True) -> json:
-    """
-    Gibt die Entität Werk im JSON-LD Format zurück
+@login_required
+def json_ld_werk(werk_id) -> json:
+    return _get_json_ld_werk(werk_id, True)
 
-    :param werk_id: ID des angefragten Werkes
-    :param nutzung_beinhalten: Boolscher Wert zur Vermeidung von Mehrfachverweisen
-    :return: JSON-LD des Werkes
+
+@bp.route('/export/json_ld/nutzung/<int:nutzung_id>')
+@login_required
+def json_ld_nutzung(nutzung_id) -> json:
+    return _get_json_ld_nutzung(nutzung_id, True)
+
+
+@bp.route('/export/json_ld/ort/<int:ort_id>')
+@login_required
+def json_ld_ort(ort_id) -> json:
+    return _get_json_ld_ort(ort_id)
+
+def _get_json_ld_werk(werk_id, nutzung_beinhalten=True):
     """
+        Gibt die Entität Werk im JSON-LD Format zurück
+
+        :param werk_id: ID des angefragten Werkes
+        :param nutzung_beinhalten: Boolscher Wert zur Vermeidung von Mehrfachverweisen
+        :return: JSON-LD des Werkes
+        """
     database_cursor = get_database_connection().cursor(dictionary=True)
 
     database_cursor.execute(
@@ -148,7 +165,7 @@ def json_ld_werk(werk_id, nutzung_beinhalten=True) -> json:
         json_return['Werknummer'] = werk['werk_nummer_zechlin']
 
     if werk['fk_werk_id_fassung_von'] is not None:
-        json_return['FassungVon'] = json_ld_werk(werk['fk_werk_id_fassung_von'])
+        json_return['FassungVon'] = _get_json_ld_werk(werk['fk_werk_id_fassung_von'])
 
     if werk['fk_gattung_id'] is not None:
         json_return['Gattung'] = werk['gattung_name']
@@ -201,16 +218,14 @@ def json_ld_werk(werk_id, nutzung_beinhalten=True) -> json:
     # Rückgabe im JSON-Format
     return json_return
 
-
-@bp.route('/export/json_ld/nutzung/<int:nutzung_id>')
-def json_ld_nutzung(nutzung_id, gespieltes_werk=True) -> json:
+def _get_json_ld_nutzung(nutzung_id, gespieltes_werk=True):
     """
-    Gibt die Entität Nutzung im JSON-LD Format zurück
+        Gibt die Entität Nutzung im JSON-LD Format zurück
 
-    :param nutzung_id: ID der angefragten Nutzung
-    :param gespieltes_werk: Boolscher Wert zur Vermeidung von Mehrfachverweisen
-    :return: JSON-LD der Nutzung
-    """
+        :param nutzung_id: ID der angefragten Nutzung
+        :param gespieltes_werk: Boolscher Wert zur Vermeidung von Mehrfachverweisen
+        :return: JSON-LD der Nutzung
+        """
     database_cursor = get_database_connection().cursor(dictionary=True)
 
     database_cursor.execute(
@@ -260,11 +275,11 @@ def json_ld_nutzung(nutzung_id, gespieltes_werk=True) -> json:
     json_return['Komponist'] = JSON_LD_RUTH_ZECHLIN
 
     if nutzung['fk_ort_id'] is not None:
-        json_return['Ort'] = json_ld_ort(nutzung['fk_ort_id'])
+        json_return['Ort'] = _get_json_ld_ort(nutzung['fk_ort_id'])
 
     if gespieltes_werk:
         if nutzung['fk_werk_id'] is not None:
-            json_return['Aufgeführtes Werk'] = json_ld_werk(nutzung['fk_werk_id'], False)
+            json_return['Aufgeführtes Werk'] = _get_json_ld_werk(nutzung['fk_werk_id'], False)
 
     if nutzung['nutzung_beteiligte'] is not None:
         json_return['Beteiligte'] = nutzung['nutzung_beteiligte']
@@ -272,15 +287,13 @@ def json_ld_nutzung(nutzung_id, gespieltes_werk=True) -> json:
     # Rückgabe im JSON-Format
     return json_return
 
-
-@bp.route('/export/json_ld/ort/<int:ort_id>')
-def json_ld_ort(ort_id) -> json:
+def _get_json_ld_ort(ort_id):
     """
-    Gibt die Entität Ort als JSON-LD Format zurück
+        Gibt die Entität Ort als JSON-LD Format zurück
 
-    :param ort_id: ID des angefragten Ortes
-    :return: JSON-LD des Werkes
-    """
+        :param ort_id: ID des angefragten Ortes
+        :return: JSON-LD des Werkes
+        """
     database_cursor = get_database_connection().cursor(dictionary=True)
 
     database_cursor.execute(

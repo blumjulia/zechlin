@@ -1,5 +1,6 @@
 from flask import request, Blueprint, abort, render_template
 
+from zechlin.auth import login_required
 from zechlin.datenbank import get_database_connection, close_database_cursor
 
 bp = Blueprint('suche', __name__)
@@ -43,6 +44,7 @@ OPERATOR_SQL = {
 
 
 @bp.route('/ergebnis/schnellsuche', methods=['GET'])
+@login_required
 def ergebnis_schnellsuche() -> str:
     """
     Erstellt und rendert die Ergebnisse der Schnellsuche
@@ -173,6 +175,7 @@ def ergebnis_schnellsuche() -> str:
 
 
 @bp.route('/ergebnis/werksuche', methods=['GET'])
+@login_required
 def ergebnis_werksuche() -> str:
     """
     Erstellt und rendert die Ergebnisse der erweiterten Werksuche
@@ -282,6 +285,7 @@ def ergebnis_werksuche() -> str:
 
 
 @bp.route('/ergebnis/nutzungssuche', methods=['GET'])
+@login_required
 def ergebnis_nutzungssuche():
     """
     Erstellt und rendert die Ergebnisse der erweiterten Nutzungssuche

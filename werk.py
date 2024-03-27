@@ -2,6 +2,7 @@ from flask import (
     Blueprint, render_template
 )
 
+from zechlin.auth import login_required
 from zechlin.datenbank import get_database_connection, close_database_cursor
 from zechlin import config
 
@@ -16,6 +17,7 @@ bp = Blueprint('werk', __name__)
 
 
 @bp.route('/werk/<werk_id>')
+@login_required
 def werk(werk_id) -> str:
     """
     Erstellt und rendert die Übersichtsseite der Entität 'Werk'
@@ -103,6 +105,7 @@ def werk(werk_id) -> str:
 
 
 @bp.route('/werk/verzeichnis')
+@login_required
 def verzeichnis() -> str:
     """
     Erstellt und rendert das Werkverzeichnis

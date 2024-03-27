@@ -3,6 +3,7 @@ from flask import (
 )
 
 from zechlin import config
+from zechlin.auth import login_required
 from zechlin.datenbank import get_database_connection, close_database_cursor
 
 bp = Blueprint('auswertung', __name__)
@@ -16,6 +17,7 @@ bp = Blueprint('auswertung', __name__)
 
 
 @bp.route('/auswertung/nutzung/karte')
+@login_required
 def werknutzung_karte() -> str:
     """
     Lädt Informationen für eine kartografische Darstellung der Nutzungen und gibt diese zurück
@@ -73,6 +75,7 @@ def werknutzung_karte() -> str:
 
 
 @bp.route('/auswertung/werkentstehung')
+@login_required
 def werk_entstehung() -> str:
     """
     Lädt Informationen zum Anzeigen von Diagrammen in Bezug auf die Enstehungszeit der Werke
@@ -157,6 +160,7 @@ def werk_entstehung() -> str:
 
 
 @bp.route('/auswertung/urauffuehrungen')
+@login_required
 def werk_urauffuehrung() -> str:
     """
     Lädt Informationen zum Anzeigen von Diagrammen in Bezug auf die Uraufführungen der Werke
@@ -270,6 +274,7 @@ def werk_urauffuehrung() -> str:
 
 
 @bp.route('/auswertung/nutzungen')
+@login_required
 def werk_nutzung() -> str:
     """
     Lädt Informationen zum Anzeigen von Diagrammen in Bezug auf die Nutzungen der Werke
@@ -321,6 +326,7 @@ def werk_nutzung() -> str:
 
 
 @bp.route('/auswertung/werke/verlag')
+@login_required
 def werk_verlag() -> str:
     """
     Lädt Informationen zum Anzeigen von Diagrammen in Bezug auf die Nutzungen der Werke

@@ -2,6 +2,7 @@ CREATE DATABASE IF NOT EXISTS zechlin;
 
 USE zechlin;
 
+DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS quelle_nutzung;
 DROP TABLE IF EXISTS nutzung;
 DROP TABLE IF EXISTS ausgabe;
@@ -15,6 +16,16 @@ DROP TABLE IF EXISTS gattung;
 DROP TABLE IF EXISTS ort;
 DROP TABLE IF EXISTS rism;
 DROP TABLE IF EXISTS rism_kategorie;
+
+CREATE TABLE user
+(
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_access BOOLEAN NOT NULL DEFAULT FALSE,
+    user_auth_attempts INT NOT NULL DEFAULT 0,
+    user_blocked_until DATETIME NULL,
+    user_blocked_count INT NOT NULL DEFAULT 0,
+    user_ip_address VARCHAR(200) NOT NULL
+);
 
 CREATE TABLE gattung
 (

@@ -2,6 +2,7 @@ from flask import (
     Blueprint, render_template
 )
 
+from zechlin.auth import login_required
 from zechlin.datenbank import get_database_connection, close_database_cursor
 
 bp = Blueprint('dokumentation', __name__)
@@ -15,6 +16,7 @@ bp = Blueprint('dokumentation', __name__)
 
 
 @bp.route('/dokumentation/datenbank')
+@login_required
 def datenbank_struktur() -> str:
     """
     Erstellt und rendert die Dokumentation der Datenbank
@@ -31,6 +33,7 @@ def datenbank_struktur() -> str:
 
 
 @bp.route('/dokumentation/werk')
+@login_required
 def werk() -> str:
     """
     Erstellt und rendert die Dokumentation der Datenbank-Tabelle Werk
@@ -56,6 +59,7 @@ def werk() -> str:
 
 
 @bp.route('/dokumentation/nutzung')
+@login_required
 def nutzung() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle Nutzung
@@ -81,6 +85,7 @@ def nutzung() -> str:
 
 
 @bp.route('/dokumentation/quelle-nutzung')
+@login_required
 def quelle_nutzung() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle quelle-nutzung
@@ -106,6 +111,7 @@ def quelle_nutzung() -> str:
 
 
 @bp.route('/dokumentation/verlag')
+@login_required
 def verlag() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle verlag
@@ -131,6 +137,7 @@ def verlag() -> str:
 
 
 @bp.route('/dokumentation/ort')
+@login_required
 def ort() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle ort
@@ -156,6 +163,7 @@ def ort() -> str:
 
 
 @bp.route('/dokumentation/gattung')
+@login_required
 def gattung() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle gattung
@@ -181,6 +189,7 @@ def gattung() -> str:
 
 
 @bp.route('/dokumentation/untergattung')
+@login_required
 def untergattung() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle untergattung
@@ -206,6 +215,7 @@ def untergattung() -> str:
 
 
 @bp.route('/dokumentation/detailgattung')
+@login_required
 def detailgattung() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle detailgattung
@@ -231,6 +241,7 @@ def detailgattung() -> str:
 
 
 @bp.route('/dokumentation/werkart')
+@login_required
 def werkart() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle werkart
@@ -256,6 +267,7 @@ def werkart() -> str:
 
 
 @bp.route('/dokumentation/ausgabe')
+@login_required
 def ausgabe() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle ausgabe
@@ -281,6 +293,7 @@ def ausgabe() -> str:
 
 
 @bp.route('/dokumentation/rism')
+@login_required
 def rism() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle rism
@@ -308,6 +321,7 @@ def rism() -> str:
 
 
 @bp.route('/dokumentation/rism-kategorie')
+@login_required
 def rism_kategorie() -> str:
     """
     Erstellt und rendert die Dokumentationsseite zur Datenbank-Tabelle rism_kategorie

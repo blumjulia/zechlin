@@ -1,7 +1,6 @@
 import os
 from flask import Flask
 
-
 def create_app(test_config=None) -> Flask:
     """
     Erstellung und Konfiguration der Flask-Applikation
@@ -23,6 +22,10 @@ def create_app(test_config=None) -> Flask:
     # Deaktiviert das Sortieren von JSON Keys, dadurch kann eine eigene Sortierung angewendet werden
     app.json.sort_keys = False
 
+    app.config.from_mapping(
+        SECRET_KEY='zechlin_session_key',
+    )
+
     # Erstellt den Instanz-Ordner
     try:
         os.makedirs(app.instance_path)
@@ -31,6 +34,9 @@ def create_app(test_config=None) -> Flask:
 
     # Funktionen um Interaktionen mit der MariaDB Datenbank durchzuführen
     from . import datenbank
+
+    from . import auth
+    app.register_blueprint(auth.bp)
 
     # Hauptseiten der Webseite
     # /
@@ -107,4 +113,4 @@ def create_app(test_config=None) -> Flask:
 # Initiieren der Applikation zechlin
 if __name__ == '__main__':
     zechlin = create_app()
-    zechlin.run(debug=True)
+    zechlin.run()

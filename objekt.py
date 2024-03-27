@@ -3,6 +3,7 @@ from flask import (
 )
 
 from zechlin import config
+from zechlin.auth import login_required
 from zechlin.datenbank import get_database_connection, close_database_cursor
 
 bp = Blueprint('objekt', __name__)
@@ -16,6 +17,7 @@ bp = Blueprint('objekt', __name__)
 
 
 @bp.route('/gattung/<gattung_id>')
+@login_required
 def gattung(gattung_id) -> str:
     """
     Erstellt und rendert die Übersichtsseite der Entität 'Gattung'
@@ -60,6 +62,7 @@ def gattung(gattung_id) -> str:
 
 
 @bp.route('/untergattung/<untergattung_id>')
+@login_required
 def untergattung(untergattung_id) -> str:
     """
     Erstellt und rendert die Übersichtsseite der Entität 'Untergattung'
@@ -107,6 +110,7 @@ def untergattung(untergattung_id) -> str:
 
 
 @bp.route('/detailgattung/<detailgattung_id>')
+@login_required
 def detailgattung(detailgattung_id) -> str:
     """
     Erstellt und rendert die Übersichtsseite der Entität 'Detailgattung'
@@ -148,6 +152,7 @@ def detailgattung(detailgattung_id) -> str:
 
 
 @bp.route('/ort/<ort_id>')
+@login_required
 def ort(ort_id) -> str:
     """
     Erstellt und rendert die Übersichtsseite der Entität 'Ort'
@@ -183,6 +188,7 @@ def ort(ort_id) -> str:
     close_database_cursor()
     return render_template('objekt/ort.html', title=webseite_titel, aktives_menu=aktives_menu, ort=ort, nutzungen=nutzungen, config=config)
 @bp.route('/verlag/<verlag_id>')
+@login_required
 def verlag(verlag_id) -> str:
     """
     Erstellt und rendert die Übersichtsseite der Entität 'Verlag'
@@ -216,6 +222,7 @@ def verlag(verlag_id) -> str:
     close_database_cursor()
     return render_template('objekt/verlag.html', title=webseite_titel, aktives_menu=aktives_menu, werke=werke, verlag=verlag, config=config)
 @bp.route('/werkart/<werkart_id>')
+@login_required
 def werkart(werkart_id) -> str:
     """
     Erstellt und rendert die Übersichtsseite der Entität 'Werkart'

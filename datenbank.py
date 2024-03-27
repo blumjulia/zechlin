@@ -1,5 +1,6 @@
 from flask import g
 import mariadb
+
 from zechlin import credentials
 
 
@@ -14,11 +15,11 @@ def get_database_connection() -> mariadb.connections.Connection:
     if 'database_connect' not in g:
         # Zugangsdaten werden aus der credentials.py ausgelesen und verwendet
         database_connection = mariadb.connect(
-            user=credentials.database['user'],
-            password=credentials.database['password'],
-            host=credentials.database['host'],
-            port=credentials.database['port'],
-            database=credentials.database['database']
+            user=credentials.config['database']['user'],
+            password=credentials.config['database']['password'],
+            host=credentials.config['database']['host'],
+            port=credentials.config['database']['port'],
+            database=credentials.config['database']['database']
         )
 
         g.database_connection = database_connection
